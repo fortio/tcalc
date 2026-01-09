@@ -32,16 +32,18 @@ type (
 )
 
 const (
-	SUM    operator = '+'
-	SUB    operator = '-'
-	PROD   operator = '*'
-	DIV    operator = '/'
-	XOR    operator = '^'
-	OR     operator = '|'
-	NOT    operator = '~'
-	AND    operator = '&'
-	MOD    operator = '%'
+	SUM  operator = '+'
+	SUB  operator = '-'
+	PROD operator = '*'
+	DIV  operator = '/'
+	XOR  operator = '^'
+	OR   operator = '|'
+	NOT  operator = '~'
+	AND  operator = '&'
+	MOD  operator = '%'
+
 	ASSIGN operator = '='
+
 	LPAREN operator = '('
 	RPAREN operator = ')'
 	// two rune operators

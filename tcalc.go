@@ -136,10 +136,14 @@ func (c *config) handleInput() bool {
 				c.input = "_ans_" + c.input
 			}
 			newRecord := historyRecord{
-				evaluated: strings.Replace(c.input, "_ans_-", "-", 1),
+				evaluated: c.input,
 			}
 			ans := c.state.ans
-			newRecord.evaluated = strings.ReplaceAll(newRecord.evaluated, "_ans_", strconv.Itoa(int(ans)))
+			stringToReplace := strconv.Itoa(int(ans))
+			if stringToReplace[0] == '-' {
+				stringToReplace = "(" + stringToReplace + ")"
+			}
+			newRecord.evaluated = strings.ReplaceAll(newRecord.evaluated, "_ans_", stringToReplace)
 			err := c.state.Exec(c.input)
 			if err != nil {
 				c.input = ""
@@ -180,9 +184,6 @@ func (c *config) handleInput() bool {
 					c.curRecord--
 				}
 				c.input = c.history[c.curRecord].evaluated
-				// if c.curRecord > 0 && int(c.history[c.curRecord-1].finalValue){
-				// 	c.input = strings.Replace(c.input, "_ans_", "("+strconv.Itoa(int(c.history[c.curRecord-1].finalValue))+")", 1)
-				// }
 				c.index = len(c.input)
 			}
 		case "\x1b[B": // down
