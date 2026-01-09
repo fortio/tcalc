@@ -61,12 +61,15 @@ var length2operators = []doubleRuneOperator{
 	LEFTSHIFT, RIGHTSHIFT,
 }
 
-var negative = []string{"("}
-
 func (s *state) Tokenize(input string) []string {
 	tokens := make([]string, 0, len(input))
 	cur := ""
 	for _, char := range input {
+		numTokens := len(tokens)
+		if numTokens > 0 && tokens[numTokens-1] == "*" && char == '*' {
+			tokens[numTokens-1] = "**"
+			continue
+		}
 		if char == '(' || char == ')' || slices.Contains(length1operatorsInfix, operator(char)) || slices.Contains(length1operatorsPrefix, operator(char)) {
 			if len(cur) > 0 {
 				tokens = append(tokens, cur)
@@ -103,16 +106,6 @@ func (s *state) Tokenize(input string) []string {
 	if cur != "" {
 		tokens = append(tokens, cur)
 	}
-	for i, token := range tokens {
-		if token == "-" {
-			before := tokens[:i]
-			after := tokens[i+2:]
-			s := append([]string{"(", "0"}, []string{token, tokens[i+1]}...)
-			s = append(s, ")")
-			tokens = append(before, s...)
-			tokens = append(tokens, after...)
-		}
-	}
 	return tokens
 }
 
@@ -142,6 +135,13 @@ func (s *state) Eval(curNode calcNode) (int64, error) {
 	if curNode.value == nil {
 		return -1, errors.New("bad value")
 	}
+	if *curNode.value == "-" && (curNode.left == nil || curNode.left.value == nil) {
+		num, err := s.Eval(*curNode.right)
+		if err != nil {
+			return -1, err
+		}
+		return -1 * num, nil
+	}
 
 	if slices.Contains(length1operatorsInfix, operator((*curNode.value)[0])) {
 		l, err := s.Eval(*curNode.left)
@@ -167,6 +167,8 @@ func (s *state) Eval(curNode calcNode) (int64, error) {
 			return l ^ r, nil
 		case "|":
 			return l | r, nil
+		case "%":
+			return l % r, nil
 		default:
 			return -1, errors.New("invalid operator")
 		}
@@ -216,6 +218,7 @@ func (s *state) Eval(curNode calcNode) (int64, error) {
 
 func (s *state) Parse(tokens []string) (calcNode, error) {
 	node := s.parse(tokens, 0, nil)
+
 	if node == nil {
 		return calcNode{}, errors.New("nil error")
 	}
@@ -223,15 +226,16 @@ func (s *state) Parse(tokens []string) (calcNode, error) {
 }
 
 func (s *state) parse(tokens []string, index int, cur *calcNode) *calcNode {
-	if index >= len(tokens) {
+	if index >= len(tokens) || len(tokens) == 0 {
 		return cur
 	}
+
 	token := tokens[index]
 	new := calcNode{value: &token}
 	if slices.Contains(length1operatorsInfix, operator(token[0])) && token[0] != '=' {
 		new.left = cur
-		new.right = s.parse(tokens, index+1, nil)
-		return &new
+		// new.right = s.parse(tokens, index+1, nil)
+		return s.parse(tokens, index+1, &new)
 	}
 	switch token {
 	case "=":
@@ -242,7 +246,7 @@ func (s *state) parse(tokens []string, index int, cur *calcNode) *calcNode {
 		new = *s.parse(tokens[index+1:], 0, nil)
 		return &calcNode{assignment: &assignment{name: name, right: new}}
 
-	case "<<", ">>":
+	case "<<", ">>", "**":
 		new.left = cur
 		new.right = s.parse(tokens, index+1, nil)
 		return &new
@@ -251,14 +255,38 @@ func (s *state) parse(tokens []string, index int, cur *calcNode) *calcNode {
 		if rParenIndex == -1 {
 			return nil
 		}
-		inner := tokens[index+1:][:slices.Index(tokens[index:], ")")]
+		inner := innerParentheses(tokens[index+1:])
 		node := s.parse(inner, 0, nil)
+		if cur != nil {
+			cur.right = node
+			return s.parse(tokens[index+1+len(inner):], 0, cur)
+		}
 		return s.parse(tokens[index+1+len(inner):], 0, node)
 	case ")":
 		return s.parse(tokens, index+1, cur)
 	default:
+		if cur != nil {
+			cur.right = &new
+			return s.parse(tokens, index+1, cur)
+		}
 		return s.parse(tokens, index+1, &new)
 	}
+}
+
+func innerParentheses(tokens []string) []string {
+	score := 0
+	for i, token := range tokens {
+		switch token {
+		case ")":
+			if score == 0 {
+				return tokens[:i]
+			}
+			score--
+		case "(":
+			score++
+		}
+	}
+	return nil
 }
 
 type assignment struct {

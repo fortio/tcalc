@@ -126,8 +126,7 @@ func main() {
 				if err != nil {
 					c.input = ""
 					c.index = 0
-					c.state.ans = 0
-					return true
+					c.state.ans = ans
 				}
 				newRecord.finalValue = c.state.ans
 				if newRecord.evaluated == "" {
