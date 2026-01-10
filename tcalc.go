@@ -39,7 +39,9 @@ var instructions = []string{
 	"MOD %   AND &   OR |   XOR ^",
 	"POW **  LSHIFT <<   RSHIFT >>",
 	"NOT ~   ASSIGN =",
-	"Click on individual bits to flip them.\nup and down arrows to navigate history.\nPress ctrl+c to quit.",
+	"Click on individual bits to flip them.",
+	"up and down arrows to navigate history.",
+	"Press ctrl+c to quit.",
 }
 
 func main() {
