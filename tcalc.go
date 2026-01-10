@@ -33,12 +33,14 @@ var validClickXs = []int{
 	5, 7, 9, 11, 14, 16, 18, 20, 23, 25, 27, 29, 32, 34, 36, 38,
 }
 
-const instructions string = "Type expressions to evaluate. \n" +
-	"SUM +   SUB -   MUL *   DIV /\n" +
-	"MOD %   AND &   OR |   XOR ^\n" +
-	"POW **  LSHIFT <<   RSHIFT >>\n" +
-	"NOT ~   ASSIGN =\n" +
-	"Click on individual bits to flip them.\nup and down arrows to navigate history.\nPress ctrl+c to quit."
+var instructions = []string{
+	"Type expressions to evaluate.",
+	"SUM +   SUB -   MUL *   DIV /",
+	"MOD %   AND &   OR |   XOR ^",
+	"POW **  LSHIFT <<   RSHIFT >>",
+	"NOT ~   ASSIGN =",
+	"Click on individual bits to flip them.\nup and down arrows to navigate history.\nPress ctrl+c to quit.",
+}
 
 func main() {
 	ap := ansipixels.NewAnsiPixels(30)
@@ -77,7 +79,9 @@ func main() {
 		}
 		c.AP.ClearScreen()
 		if c.AP.H > 17 {
-			c.AP.WriteAtStr(0, 0, tcolor.Gray.Foreground()+instructions)
+			for i, str := range instructions {
+				c.AP.WriteAtStr(0, i, str)
+			}
 		}
 		strings := displayString(c.state.ans, c.state.err)
 		y := ap.H - 12
