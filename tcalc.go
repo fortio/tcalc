@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -33,7 +32,6 @@ var validClickXs = []int{
 
 func main() {
 	ap := ansipixels.NewAnsiPixels(30)
-	flag.Parse()
 	c := config{ap, newState(), "", 0, -1, []historyRecord{{"0", 0}}, -1}
 	err := c.AP.Open()
 	if err != nil {
