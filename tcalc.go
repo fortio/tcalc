@@ -62,13 +62,12 @@ func main() {
 		if diff > 0 {
 			c.history = c.history[diff:]
 		}
-		stop := !c.handleInput()
-		if stop {
+		if !c.handleInput() {
 			return false
 		}
 		c.AP.ClearScreen()
-		strings := displayString(c.state.ans)
-		y := ap.H - 11
+		strings := displayString(c.state.ans, c.state.err)
+		y := ap.H - 12
 		for i, str := range strings {
 			c.AP.WriteAtStr(0, y+i, str)
 		}

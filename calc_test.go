@@ -116,8 +116,17 @@ func TestExec(t *testing.T) {
 		if err != nil || s.ans != -2 {
 			t.Fail()
 		}
-		err = s.Exec("!1")
-		if err != nil || s.ans != 0 {
+		err = s.Exec("2>>1")
+		if err != nil || s.ans != 1 {
+			t.Fail()
+		}
+	})
+
+	t.Run("display strings", func(t *testing.T) {
+		if decimalDisplayString(64) != "Decimal: 64\n" {
+			t.Fail()
+		}
+		if hexDisplayString(64) != "Hex: 40\n" {
 			t.Fail()
 		}
 	})

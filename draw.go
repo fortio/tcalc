@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"fortio.org/terminal/ansipixels/tcolor"
 )
 
 const (
@@ -24,12 +26,14 @@ func binaryDisplayString(num int64) []string {
 		}
 		rows[j][k][w] = valueString
 		w = (w + 1) % 4
-		if w == 0 {
-			k = (k + 1) % 4
-			if k == 0 {
-				j = (j + 1) % 4
-			}
+		if w != 0 {
+			continue
 		}
+		k = (k + 1) % 4
+		if k != 0 {
+			continue
+		}
+		j = (j + 1) % 4
 	}
 	display := []string{binaryString}
 	for i := range 4 {
@@ -40,7 +44,7 @@ func binaryDisplayString(num int64) []string {
 		}
 		innerString := strings.Join(inner, "  ")
 
-		display = append(display, displayValue+": "+innerString+"\n")
+		display = append(display, displayValue+": "+innerString)
 	}
 	return display
 }
@@ -53,21 +57,25 @@ func hexDisplayString(num int64) string {
 	return hexString + fmt.Sprintf("%x\n", num)
 }
 
-func displayString(num int64) []string {
-	return append([]string{ascii(num), decimalDisplayString(num), hexDisplayString(num)}, binaryDisplayString(num)...)
+func displayString(num int64, err error) []string {
+	display := append([]string{"", ascii(num), decimalDisplayString(num), hexDisplayString(num)}, binaryDisplayString(num)...)
+	if err != nil {
+		display[0] = tcolor.Red.Foreground() + "Last input was invalid" + tcolor.Reset
+	}
+	return display
 }
 
 func ascii(num int64) string {
 	switch num {
 	case 12:
-		return "ascii: \n"
+		return "ascii: "
 	case 7:
-		return "ascii: \n"
+		return "ascii: "
 	case 10:
-		return "ascii: \\n\n"
+		return "ascii: \\n"
 	case 11:
-		return "ascii: \\r\n"
+		return "ascii: \\r"
 	default:
-		return "ascii: " + string(rune(num)) + "\n"
+		return "ascii: " + string(rune(num))
 	}
 }
