@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -12,13 +13,15 @@ import (
 )
 
 type config struct {
-	AP        *ansipixels.AnsiPixels
-	state     *state
-	input     string
-	index     int
-	bitset    int
-	history   []historyRecord
-	curRecord int
+	AP           *ansipixels.AnsiPixels
+	state        *state
+	input        string
+	index        int
+	bitset       int
+	history      []historyRecord
+	curRecord    int
+	clicked      bool
+	clickedValue int64
 }
 
 type historyRecord struct {
@@ -30,10 +33,19 @@ var validClickXs = []int{
 	5, 7, 9, 11, 14, 16, 18, 20, 23, 25, 27, 29, 32, 34, 36, 38,
 }
 
+const instructions string = "Type expressions to evaluate. \n" +
+	"SUM +   SUB -   MUL *   DIV /\n" +
+	"MOD %   AND &   OR |   XOR ^\n" +
+	"POW **  LSHIFT <<   RSHIFT >>\n" +
+	"NOT ~   ASSIGN =\n" +
+	"Click on individual bits to flip them.\nup and down arrows to navigate history.\nPress ctrl+c to quit."
+
 func main() {
 	ap := ansipixels.NewAnsiPixels(30)
-	c := config{ap, newState(), "", 0, -1, []historyRecord{{"0", 0}}, -1}
+	c := config{ap, newState(), "", 0, -1, []historyRecord{{"0", 0}}, -1, false, 0}
 	err := c.AP.Open()
+	log := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{}))
+	slog.SetDefault(log)
 	if err != nil {
 		slog.Error("couldn't open terminal", "error", err)
 		return
@@ -64,6 +76,9 @@ func main() {
 			return false
 		}
 		c.AP.ClearScreen()
+		if c.AP.H > 17 {
+			c.AP.WriteAtStr(0, 0, tcolor.Gray.Foreground()+instructions)
+		}
 		strings := displayString(c.state.ans, c.state.err)
 		y := ap.H - 12
 		for i, str := range strings {
@@ -71,33 +86,13 @@ func main() {
 		}
 		c.AP.WriteAtStr(0, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
 		c.AP.WriteAtStr(0, c.AP.H-2, c.input)
-		if c.AP.W > 76 {
-			for i := range ap.H {
-				c.AP.WriteAtStr(c.AP.W/2, i, "⏐")
-			}
-			for i, record := range c.history {
-				line := record.evaluated + ": " + strconv.Itoa(int(record.finalValue))
-				runes := make([]rune, len(line), c.AP.W/2-1)
-				for i := range line {
-					runes[i] = '⎯'
-				}
-				if c.curRecord == i {
-					for j := len(line); j < c.AP.W/2-1; j++ {
-						runes = append(runes, '⎯')
-					}
-					c.AP.WriteAtStr(ap.W-len(runes), ap.H-((len(c.history)-i)*2)+1, tcolor.Green.Foreground()+string(runes))
-				}
-				if c.curRecord != i-1 {
-					c.AP.WriteAtStr(ap.W-len(runes), ap.H-((len(c.history)-i)*2)-1, string(runes)+tcolor.Reset)
-				}
-				c.AP.WriteAtStr(ap.W-len(line), ap.H-((len(c.history)-i)*2), tcolor.Reset+line)
-			}
-		}
+		c.DrawHistory()
 		c.AP.MoveCursor(c.index, c.AP.H-2)
 		if c.AP.LeftClick() && c.AP.MouseRelease() {
 			x, y := c.AP.Mx, c.AP.My
 			if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
 				bit := c.determineBitFromXY(x, c.AP.H-2-y)
+				c.clicked = true
 				c.state.ans = (c.state.ans) ^ (1 << bit)
 			}
 		}
@@ -132,32 +127,7 @@ func (c *config) handleInput() bool {
 			c.input = before + after
 			c.index = max(c.index-1, 0)
 		case '\r', '\n':
-			if (len(c.input) > 2 && slices.Contains(length2operators, doubleRuneOperator(c.input[:2]))) ||
-				(len(c.input) > 0 && slices.Contains(length1operatorsInfix, operator(c.input[0]))) {
-				c.input = "_ans_" + c.input
-			}
-			newRecord := historyRecord{
-				evaluated: c.input,
-			}
-			ans := c.state.ans
-			stringToReplace := strconv.Itoa(int(ans))
-			if stringToReplace[0] == '-' {
-				stringToReplace = "(" + stringToReplace + ")"
-			}
-			newRecord.evaluated = strings.ReplaceAll(newRecord.evaluated, "_ans_", stringToReplace)
-			err := c.state.Exec(c.input)
-			if err != nil {
-				c.input = ""
-				c.index = 0
-				c.state.ans = ans
-				break
-			}
-			newRecord.finalValue = c.state.ans
-			if newRecord.evaluated == "" {
-				newRecord.evaluated = strconv.Itoa(int(newRecord.finalValue))
-			}
-			c.history = append(c.history, newRecord)
-			c.input, c.index = "", 0
+			c.handleEnter()
 		default:
 			c.curRecord = -1
 			before, after := c.input[:c.index], c.input[c.index:]
@@ -203,4 +173,73 @@ func (c *config) handleInput() bool {
 		}
 	}
 	return true
+}
+
+func (c *config) handleEnter() {
+	defer func() { c.clicked = false }()
+	if c.input == "" {
+		if c.clicked {
+			c.input = "(" + strconv.Itoa(int(c.state.ans)) + ")"
+		} else {
+			c.input = c.history[len(c.history)-1].evaluated
+		}
+	}
+	ansValue := "_ans_"
+	if c.clicked {
+		ansValue = strconv.Itoa(int(c.state.ans))
+	}
+	if (len(c.input) > 2 && slices.Contains(length2operators, doubleRuneOperator(c.input[:2]))) ||
+		(len(c.input) > 0 && slices.Contains(length1operatorsInfix, operator(c.input[0]))) {
+		c.input = ansValue + c.input
+	}
+	newRecord := historyRecord{
+		evaluated: c.input,
+	}
+	if len(c.history) > 1 {
+		ans := c.history[len(c.history)-2].finalValue
+		stringToReplace := strconv.Itoa(int(ans))
+		if stringToReplace[0] == '-' {
+			stringToReplace = "(" + stringToReplace + ")"
+		}
+		c.history[len(c.history)-1].evaluated = strings.ReplaceAll(c.history[len(c.history)-1].evaluated, "_ans_", stringToReplace)
+	}
+	err := c.state.Exec(c.input)
+	if err != nil {
+		c.input = ""
+		c.index = 0
+		c.state.ans = c.history[len(c.history)-1].finalValue
+		return
+	}
+	newRecord.finalValue = c.state.ans
+	if newRecord.evaluated == "" {
+		newRecord.evaluated = strconv.Itoa(int(newRecord.finalValue))
+	}
+	c.history = append(c.history, newRecord)
+	c.input, c.index = "", 0
+}
+
+func (c *config) DrawHistory() {
+	if c.AP.W > 76 {
+		c.AP.WriteAtStr(c.AP.W-27, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+		for i := range c.AP.H {
+			c.AP.WriteAtStr(c.AP.W/2, i, "⏐")
+		}
+		for i, record := range c.history {
+			line := record.evaluated + ": " + strconv.Itoa(int(record.finalValue))
+			runes := make([]rune, len(line), c.AP.W/2-1)
+			for i := range line {
+				runes[i] = '⎯'
+			}
+			if c.curRecord == i {
+				for j := len(line); j < c.AP.W/2-1; j++ {
+					runes = append(runes, '⎯')
+				}
+				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)+1, tcolor.Green.Foreground()+string(runes))
+			}
+			if c.curRecord != i-1 {
+				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)-1, string(runes)+tcolor.Reset)
+			}
+			c.AP.WriteAtStr(c.AP.W-len(line), c.AP.H-((len(c.history)-i)*2), tcolor.Reset+line)
+		}
+	}
 }
