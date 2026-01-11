@@ -53,12 +53,25 @@ func decimalDisplayString(num int64) string {
 	return decimalString + strconv.Itoa(int(num)) + "\n"
 }
 
+func uintDisplayString(num int64) string {
+	//nolint:gosec // we just want to display the unsigned representation of our number
+	return "Unsigned " + decimalString + strconv.FormatUint((uint64(num)), 10)
+}
+
 func hexDisplayString(num int64) string {
-	return hexString + fmt.Sprintf("%x\n", num)
+	//nolint:gosec // I think it makes the most sense to display the hex value as unsigned
+	return hexString + fmt.Sprintf("%x\n", uint64(num))
 }
 
 func displayString(num int64, err error) []string {
-	display := append([]string{"", ascii(num), decimalDisplayString(num), hexDisplayString(num)}, binaryDisplayString(num)...)
+	display := append([]string{
+		"",
+		ascii(num),
+		decimalDisplayString(num),
+		uintDisplayString(num),
+		hexDisplayString(num),
+	},
+		binaryDisplayString(num)...)
 	if err != nil {
 		display[0] = tcolor.Red.Foreground() + "Last input was invalid" + tcolor.Reset
 	}

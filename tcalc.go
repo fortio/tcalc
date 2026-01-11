@@ -86,7 +86,7 @@ func main() {
 			}
 		}
 		strings := displayString(c.state.ans, c.state.err)
-		y := ap.H - 12
+		y := ap.H - 13
 		for i, str := range strings {
 			c.AP.WriteAtStr(0, y+i, str)
 		}
