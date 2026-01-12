@@ -66,7 +66,7 @@ func hexDisplayString(num int64) string {
 func displayString(num int64, err error) []string {
 	display := append([]string{
 		"",
-		ascii(num),
+		ASCII(num),
 		decimalDisplayString(num),
 		uintDisplayString(num),
 		hexDisplayString(num),
@@ -78,17 +78,17 @@ func displayString(num int64, err error) []string {
 	return display
 }
 
-func ascii(num int64) string {
+func ASCII(num int64) string {
 	switch num {
 	case 12:
-		return "ascii: "
+		return "ASCII: "
 	case 7:
-		return "ascii: "
+		return "ASCII: "
 	case 10:
-		return "ascii: \\n"
+		return "ASCII: \\n"
 	case 11:
-		return "ascii: \\r"
+		return "ASCII: \\r"
 	default:
-		return "ascii: " + string(rune(num))
+		return "ASCII: " + string(rune(num))
 	}
 }
