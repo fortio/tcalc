@@ -44,9 +44,13 @@ var instructions = []string{
 	"Press ctrl+c to quit.",
 }
 
+func configure(ap *ansipixels.AnsiPixels) config {
+	return config{ap, newState(), "", 0, -1, []historyRecord{{"0", 0}}, -1, false, 0}
+}
+
 func main() {
 	ap := ansipixels.NewAnsiPixels(30)
-	c := config{ap, newState(), "", 0, -1, []historyRecord{{"0", 0}}, -1, false, 0}
+	c := configure(ap)
 	err := c.AP.Open()
 	log := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{}))
 	slog.SetDefault(log)
@@ -115,9 +119,10 @@ func (c *config) determineBitFromXY(x, y int) int {
 	if index != -1 {
 		bit += (15 - index)
 		bit += (16 * (y - 1))
+		c.bitset = bit
+		return bit
 	}
-	c.bitset = bit
-	return bit
+	return -1
 }
 
 func (c *config) handleInput() bool {
@@ -194,7 +199,7 @@ func (c *config) handleEnter() {
 	if c.clicked {
 		ansValue = strconv.Itoa(int(c.state.ans))
 	}
-	if (len(c.input) > 2 && slices.Contains(length2operators, doubleRuneOperator(c.input[:2]))) ||
+	if (len(c.input) >= 2 && slices.Contains(length2operators, doubleRuneOperator(c.input[:2]))) ||
 		(len(c.input) > 0 && slices.Contains(length1operatorsInfix, operator(c.input[0]))) {
 		c.input = ansValue + c.input
 	}

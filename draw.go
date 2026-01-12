@@ -14,7 +14,7 @@ const (
 	binaryString  string = "Binary: \n"
 )
 
-func binaryDisplayString(num int64) []string {
+func binaryDisplayStrings(num int64) []string {
 	var rows [4][4][]string
 	var j, k, w int
 	for i := 63; i > -1; i-- {
@@ -71,7 +71,7 @@ func displayString(num int64, err error) []string {
 		uintDisplayString(num),
 		hexDisplayString(num),
 	},
-		binaryDisplayString(num)...)
+		binaryDisplayStrings(num)...)
 	if err != nil {
 		display[0] = tcolor.Red.Foreground() + "Last input was invalid" + tcolor.Reset
 	}

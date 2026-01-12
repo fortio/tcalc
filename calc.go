@@ -5,6 +5,7 @@ import (
 	"math"
 	"slices"
 	"strconv"
+	"strings"
 )
 
 type calcNode struct {
@@ -65,7 +66,10 @@ var length2operators = []doubleRuneOperator{
 	LEFTSHIFT, RIGHTSHIFT,
 }
 
-func (s *state) Tokenize(input string) []string {
+func (s *state) Tokenize(input string) ([]string, error) {
+	if strings.Count(input, "=") > 1 {
+		return nil, errors.New("invalid double assignment")
+	}
 	tokens := make([]string, 0, len(input))
 	cur := ""
 	for _, char := range input {
@@ -113,11 +117,15 @@ func (s *state) Tokenize(input string) []string {
 	if cur != "" {
 		tokens = append(tokens, cur)
 	}
-	return tokens
+	return tokens, nil
 }
 
 func (s *state) Exec(input string) error {
-	tokens := s.Tokenize(input)
+	tokens, err := s.Tokenize(input)
+	if err != nil {
+		s.err = err
+		return err
+	}
 	node, err := s.Parse(tokens)
 	if err != nil {
 		s.err = err
@@ -258,7 +266,7 @@ func (s *state) parse(tokens []string, index int, cur *calcNode) *calcNode {
 	}
 	switch token {
 	case "=":
-		if index == 0 {
+		if index == 0 || index == len(tokens)-1 {
 			return nil
 		}
 		name := *cur.value
