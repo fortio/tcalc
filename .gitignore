@@ -11,7 +11,7 @@ go.work
 go.work.sum
 # Workflow/build related:
 .goreleaser.yaml
-NAME
+tcalc
 # Other grol/fortio/...
 .gr
 *.pprof

@@ -18,12 +18,12 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     call-codeql:
         uses: fortio/workflows/.github/workflows/codeql-analysis.yml@main
-    releaser-NAME:
+    releaser-tcalc:
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         uses: fortio/workflows/.github/workflows/releaser.yml@main
         with:
-            description: "DESCRIPTION"
-            binary_name: "NAME"
+            description: "tcalc is a bitwise calculator that is run from the terminal. It supports basic variable assignments, and most arithmetic and bitwise operations."
+            binary_name: "tcalc"
             dockerfile: "./Dockerfile"
         secrets:
             GH_PAT: ${{ secrets.GH_PAT }}

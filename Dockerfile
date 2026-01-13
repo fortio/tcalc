@@ -1,4 +1,4 @@
 FROM scratch
-COPY NAME /usr/bin/NAME
+COPY tcalc /usr/bin/tcalc
 ENV HOME=/home/user
-ENTRYPOINT ["/usr/bin/NAME"]
+ENTRYPOINT ["/usr/bin/tcalc"]
