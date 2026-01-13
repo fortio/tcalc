@@ -40,7 +40,7 @@ const (
 
 	LPAREN Operator = '('
 	RPAREN Operator = ')'
-	// two rune operators
+	// two rune operators.
 
 	LEFTSHIFT  DoubleRuneOperator = "<<"
 	RIGHTSHIFT DoubleRuneOperator = ">>"

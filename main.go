@@ -1,6 +1,5 @@
 // tcalc
-// tcalc is a bitwise calculator that is run from the terminal. It supports basic variable assignments, and most arithmetic and bitwise operations.
-
+// bitwise calculator that is run from the terminal. It supports basic variable assignments, and most arithmetic and bitwise operations.
 package main
 
 import (
