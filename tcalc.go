@@ -171,22 +171,22 @@ func (c *config) DrawHistory() {
 	if c.AP.W > 76 {
 		c.AP.WriteAtStr(c.AP.W-27, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
 		for i := range c.AP.H {
-			c.AP.WriteAtStr(c.AP.W/2, i, "⏐")
+			c.AP.WriteAtStr(c.AP.W/2, i, ansipixels.Vertical)
 		}
 		for i, record := range c.history {
 			line := record.evaluated + ": " + strconv.Itoa(int(record.finalValue))
-			runes := make([]rune, len(line), c.AP.W/2-1)
+			runes := make([]string, len(line), c.AP.W/2-1)
 			for i := range line {
-				runes[i] = '⎯'
+				runes[i] = ansipixels.Horizontal
 			}
 			if c.curRecord == i {
 				for j := len(line); j < c.AP.W/2-1; j++ {
-					runes = append(runes, '⎯')
+					runes = append(runes, ansipixels.Horizontal)
 				}
-				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)+1, tcolor.Green.Foreground()+string(runes))
+				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)+1, tcolor.Green.Foreground()+strings.Join(runes, ""))
 			}
 			if c.curRecord != i-1 {
-				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)-1, string(runes)+tcolor.Reset)
+				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)-1, strings.Join(runes, "")+tcolor.Reset)
 			}
 			c.AP.WriteAtStr(c.AP.W-len(line), c.AP.H-((len(c.history)-i)*2), tcolor.Reset+line)
 		}

@@ -51,14 +51,12 @@ func Main() int {
 		c.AP.Restore()
 		c.AP.ClearScreen()
 	}()
-	defer ap.Restore()
+	c.AP.MouseClickOn()
 	ap.SyncBackgroundColor()
 	ap.OnResize = func() error {
 		ap.ClearScreen()
 		ap.StartSyncMode()
-		// Redraw/resize/do something here:
-		ap.WriteBoxed(ap.H/2-1, "Welcome to tcalc!\n%dx%d\nQ to quit.", ap.W, ap.H)
-		// ...
+		c.Tick()
 		ap.EndSyncMode()
 		return nil
 	}
