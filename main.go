@@ -1,12 +1,13 @@
 // tcalc
-// tcalc is a bitwise calculator that is run from the terminal. It supports basic variable assignments, and most arithmetic and bitwise operations.
-
+// bitwise calculator that is run from the terminal.
+// It supports basic variable assignments, and most arithmetic and bitwise operations.
 package main
 
 import (
 	"flag"
 	"os"
 	"runtime/pprof"
+	"slices"
 
 	"fortio.org/cli"
 	"fortio.org/log"
@@ -15,10 +16,6 @@ import (
 
 func main() {
 	os.Exit(Main())
-}
-
-type State struct {
-	ap *ansipixels.AnsiPixels
 }
 
 func Main() int {
@@ -42,13 +39,18 @@ func Main() int {
 		defer pprof.StopCPUProfile()
 	}
 	ap := ansipixels.NewAnsiPixels(*fFPS)
-	st := &State{
-		ap: ap,
-	}
+	c := configure(ap)
+
 	ap.TrueColor = *fTrueColor
 	if err := ap.Open(); err != nil {
 		return 1 // error already logged
 	}
+	defer func() {
+		c.AP.ShowCursor()
+		c.AP.MouseClickOff()
+		c.AP.Restore()
+		c.AP.ClearScreen()
+	}()
 	defer ap.Restore()
 	ap.SyncBackgroundColor()
 	ap.OnResize = func() error {
@@ -60,9 +62,8 @@ func Main() int {
 		ap.EndSyncMode()
 		return nil
 	}
-	_ = ap.OnResize()   // initial draw.
-	ap.AutoSync = false // for cursor to blink on splash screen. remove if not wanted.
-	err := ap.FPSTicks(st.Tick)
+	_ = ap.OnResize() // initial draw.
+	err := ap.FPSTicks(c.Tick)
 	if *fMemprofile != "" {
 		f, errMP := os.Create(*fMemprofile)
 		if errMP != nil {
@@ -82,18 +83,37 @@ func Main() int {
 	return 0
 }
 
-func (st *State) Tick() bool {
-	if len(st.ap.Data) == 0 {
-		return true
+func (c *config) Tick() bool {
+	c.AP.MoveCursor(c.index+1, c.AP.H-2)
+	diff := len(c.history) - (c.AP.H / 2) + 1
+	if diff > 0 {
+		c.history = c.history[diff:]
 	}
-	c := st.ap.Data[0]
-	switch c {
-	case 'q', 'Q', 3: // Ctrl-C
-		log.Infof("Exiting on %q", c)
+	if !c.handleInput() {
 		return false
-	default:
-		log.Debugf("Input %q...", c)
-		// Do something
+	}
+	c.AP.ClearScreen()
+	if c.AP.H > 17 {
+		for i, str := range instructions {
+			c.AP.WriteAtStr(0, i, str)
+		}
+	}
+	strings := displayString(c.state.Ans, c.state.Err)
+	y := c.AP.H - 13
+	for i, str := range strings {
+		c.AP.WriteAtStr(0, y+i, str)
+	}
+	c.AP.WriteAtStr(0, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+	c.AP.WriteAtStr(0, c.AP.H-2, c.input)
+	c.DrawHistory()
+	c.AP.MoveCursor(c.index, c.AP.H-2)
+	if c.AP.LeftClick() && c.AP.MouseRelease() {
+		x, y := c.AP.Mx, c.AP.My
+		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
+			bit := c.determineBitFromXY(x, c.AP.H-2-y)
+			c.clicked = true
+			c.state.Ans = (c.state.Ans) ^ (1 << bit)
+		}
 	}
 	return true
 }
