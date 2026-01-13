@@ -1,5 +1,5 @@
-// NAME
-// DESCRIPTION
+// tcalc
+// tcalc is a bitwise calculator that is run from the terminal. It supports basic variable assignments, and most arithmetic and bitwise operations.
 
 package main
 
@@ -55,7 +55,7 @@ func Main() int {
 		ap.ClearScreen()
 		ap.StartSyncMode()
 		// Redraw/resize/do something here:
-		ap.WriteBoxed(ap.H/2-1, "Welcome to NAME!\n%dx%d\nQ to quit.", ap.W, ap.H)
+		ap.WriteBoxed(ap.H/2-1, "Welcome to tcalc!\n%dx%d\nQ to quit.", ap.W, ap.H)
 		// ...
 		ap.EndSyncMode()
 		return nil
