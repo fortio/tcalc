@@ -10,11 +10,12 @@ import (
 
 	"fortio.org/terminal/ansipixels"
 	"fortio.org/terminal/ansipixels/tcolor"
+	"github.com/geofpwhite/tcalc/calculator"
 )
 
 type config struct {
 	AP           *ansipixels.AnsiPixels
-	state        *state
+	state        *calculator.State
 	input        string
 	index        int
 	bitset       int
@@ -45,7 +46,7 @@ var instructions = []string{
 }
 
 func configure(ap *ansipixels.AnsiPixels) config {
-	return config{ap, newState(), "", 0, -1, []historyRecord{{"0", 0}}, -1, false, 0}
+	return config{ap, calculator.NewState(), "", 0, -1, []historyRecord{{"0", 0}}, -1, false, 0}
 }
 
 func main() {
@@ -63,7 +64,7 @@ func main() {
 		c.AP.MouseClickOff()
 		c.AP.Restore()
 		c.AP.ClearScreen()
-		fmt.Println(c.state.ans)
+		fmt.Println(c.state.Ans)
 	}()
 
 	c.AP.MouseClickOn()
@@ -89,7 +90,7 @@ func main() {
 				c.AP.WriteAtStr(0, i, str)
 			}
 		}
-		strings := displayString(c.state.ans, c.state.err)
+		strings := displayString(c.state.Ans, c.state.Err)
 		y := ap.H - 13
 		for i, str := range strings {
 			c.AP.WriteAtStr(0, y+i, str)
@@ -103,7 +104,7 @@ func main() {
 			if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
 				bit := c.determineBitFromXY(x, c.AP.H-2-y)
 				c.clicked = true
-				c.state.ans = (c.state.ans) ^ (1 << bit)
+				c.state.Ans = (c.state.Ans) ^ (1 << bit)
 			}
 		}
 		return true
@@ -190,7 +191,7 @@ func (c *config) handleEnter() {
 	defer func() { c.clicked = false }()
 	if c.input == "" {
 		if c.clicked {
-			c.input = "(" + strconv.Itoa(int(c.state.ans)) + ")"
+			c.input = "(" + strconv.Itoa(int(c.state.Ans)) + ")"
 		} else {
 			c.input = c.history[len(c.history)-1].evaluated
 		}
@@ -202,10 +203,10 @@ func (c *config) handleEnter() {
 	}
 	ansValue := "_ans_"
 	if c.clicked {
-		ansValue = strconv.Itoa(int(c.state.ans))
+		ansValue = strconv.Itoa(int(c.state.Ans))
 	}
-	if (len(c.input) >= 2 && slices.Contains(length2operators, DoubleRuneOperator(c.input[:2]))) ||
-		(len(c.input) > 0 && slices.Contains(length1operatorsInfix, Operator(c.input[0]))) {
+	if (len(c.input) >= 2 && slices.Contains(calculator.Length2operators, calculator.DoubleRuneOperator(c.input[:2]))) ||
+		(len(c.input) > 0 && slices.Contains(calculator.Length1operatorsInfix, calculator.Operator(c.input[0]))) {
 		c.input = ansValue + c.input
 	}
 	newRecord := historyRecord{
@@ -223,10 +224,10 @@ func (c *config) handleEnter() {
 	if err != nil {
 		c.input = ""
 		c.index = 0
-		c.state.ans = c.history[len(c.history)-1].finalValue
+		c.state.Ans = c.history[len(c.history)-1].finalValue
 		return
 	}
-	newRecord.finalValue = c.state.ans
+	newRecord.finalValue = c.state.Ans
 	if newRecord.evaluated == "" {
 		newRecord.evaluated = strconv.Itoa(int(newRecord.finalValue))
 	}

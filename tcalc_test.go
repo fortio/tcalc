@@ -6,6 +6,7 @@ import (
 
 	"fortio.org/terminal/ansipixels"
 	"fortio.org/terminal/ansipixels/tcolor"
+	"github.com/geofpwhite/tcalc/calculator"
 )
 
 func TestDisplayStrings(t *testing.T) {
@@ -59,7 +60,7 @@ func TestExec(t *testing.T) {
 		{"2>>1", 1, false},
 	}
 	for _, tc := range testCases {
-		s := newState()
+		s := calculator.NewState()
 		err := s.Exec(tc.expression)
 		if tc.shouldFail {
 			if err == nil {
@@ -69,8 +70,8 @@ func TestExec(t *testing.T) {
 		}
 		if err != nil {
 			t.Errorf("Unexpected error for expression %s: %v", tc.expression, err)
-		} else if s.ans != tc.expected {
-			t.Errorf("For expression %s, expected %d but got %d", tc.expression, tc.expected, s.ans)
+		} else if s.Ans != tc.expected {
+			t.Errorf("For expression %s, expected %d but got %d", tc.expression, tc.expected, s.Ans)
 		}
 	}
 }
@@ -132,15 +133,15 @@ func TestConfigHandleMouseInput(t *testing.T) {
 }
 
 func TestAssign(t *testing.T) {
-	s := newState()
+	s := calculator.NewState()
 	s.Exec("x=5")
-	if s.variables["x"] != 5 {
+	if s.Variables["x"] != 5 {
 		t.Fail()
 	}
 }
 
 func TestDrawHistory(t *testing.T) {
-	s := newState()
+	s := calculator.NewState()
 	err1 := s.Exec("1+1")
 	err2 := s.Exec("2+2")
 	err3 := s.Exec("3+3")
