@@ -26,7 +26,7 @@ func bitString(cur, prev int) string {
 	case [2]int{1, 0}:
 		return GREEN + "1" + tcolor.Reset
 	default:
-		return strconv.Itoa(int(cur))
+		return strconv.Itoa(cur)
 	}
 }
 
