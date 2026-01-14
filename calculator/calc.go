@@ -10,6 +10,7 @@ type CalcNode struct {
 type State struct {
 	Variables map[string]int64
 	Ans       int64
+	Prev      int64
 	Err       error
 }
 
@@ -76,6 +77,7 @@ func (s *State) Exec(input string) error {
 		return err
 	}
 
+	s.Prev = s.Ans
 	s.Ans = value
 	return nil
 }

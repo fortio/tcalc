@@ -14,15 +14,29 @@ const (
 	binaryString  string = "Binary: \n"
 )
 
-func binaryDisplayStrings(num int64) []string {
+var (
+	GREEN = tcolor.Green.Foreground()
+	RED   = tcolor.Red.Foreground()
+)
+
+func binaryDisplayStrings(num, prev int64) []string {
 	var rows [4][4][]string
 	var j, k, w int
 	for i := 63; i > -1; i-- {
 		value := (int(((1 << i) & num) >> i))
 		value = max(value, -value)
+		prevValue := (int(((1 << i) & prev) >> i))
+		prevValue = max(prevValue, -prevValue)
 		valueString := strconv.Itoa(value)
 		if rows[j][k] == nil { //nolint:gosec // we are doing some math to ensure we stay in bounds
 			rows[j][k] = make([]string, 4)
+		}
+		if value != prevValue {
+			if value == 1 {
+				valueString = GREEN + valueString + tcolor.Reset
+			} else {
+				valueString = RED + valueString + tcolor.Reset
+			}
 		}
 		rows[j][k][w] = valueString
 		w = (w + 1) % 4
@@ -63,7 +77,7 @@ func hexDisplayString(num int64) string {
 	return hexString + fmt.Sprintf("%X\n", uint64(num))
 }
 
-func displayString(num int64, err error) []string {
+func displayString(num, prev int64, err error) []string {
 	display := append([]string{
 		"",
 		unicodeDisplayString(num),
@@ -71,10 +85,10 @@ func displayString(num int64, err error) []string {
 		uintDisplayString(num),
 		hexDisplayString(num),
 	},
-		binaryDisplayStrings(num)...,
+		binaryDisplayStrings(num, prev)...,
 	)
 	if err != nil {
-		display[0] = tcolor.Red.Foreground() + "Last input was invalid" + tcolor.Reset
+		display[0] = RED + "Last input was invalid" + tcolor.Reset
 	}
 	return display
 }
