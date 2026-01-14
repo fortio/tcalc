@@ -60,35 +60,36 @@ func uintDisplayString(num int64) string {
 
 func hexDisplayString(num int64) string {
 	//nolint:gosec // I think it makes the most sense to display the hex value as unsigned
-	return hexString + fmt.Sprintf("%x\n", uint64(num))
+	return hexString + fmt.Sprintf("%X\n", uint64(num))
 }
 
 func displayString(num int64, err error) []string {
 	display := append([]string{
 		"",
-		ASCII(num),
+		unicodeDisplayString(num),
 		decimalDisplayString(num),
 		uintDisplayString(num),
 		hexDisplayString(num),
 	},
-		binaryDisplayStrings(num)...)
+		binaryDisplayStrings(num)...,
+	)
 	if err != nil {
 		display[0] = tcolor.Red.Foreground() + "Last input was invalid" + tcolor.Reset
 	}
 	return display
 }
 
-func ASCII(num int64) string {
+func unicodeDisplayString(num int64) string {
 	switch num {
 	case 12:
-		return "ASCII: "
+		return "Unicode: "
 	case 7:
-		return "ASCII: "
+		return "Unicode: "
 	case 10:
-		return "ASCII: \\n"
+		return "Unicode: \\n"
 	case 11:
-		return "ASCII: \\r"
+		return "Unicode: \\r"
 	default:
-		return "ASCII: " + string(rune(num))
+		return "Unicode: " + string(rune(num))
 	}
 }
