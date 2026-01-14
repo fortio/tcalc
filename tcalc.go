@@ -114,6 +114,10 @@ func (c *config) handleInput() bool {
 		case "\x1b[3~":
 			before, after := c.input[:c.index], c.input[min(len(c.input), c.index+1):]
 			c.input = before + after
+		default:
+			before, after := c.input[:c.index], c.input[c.index:]
+			c.input = before + string(c.AP.Data) + after
+			c.index += len(string(c.AP.Data))
 		}
 	}
 	return true
@@ -169,7 +173,10 @@ func (c *config) handleEnter() {
 
 func (c *config) DrawHistory() {
 	if c.AP.W > 76 {
-		c.AP.WriteAtStr(c.AP.W-27, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+		// c.AP.WriteAtStr(c.AP.W-27, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+		for i := range 27 {
+			c.AP.WriteAtStr(c.AP.W-i, c.AP.H, ansipixels.Horizontal)
+		}
 		for i := range c.AP.H {
 			c.AP.WriteAtStr(c.AP.W/2, i, ansipixels.Vertical)
 		}
@@ -183,7 +190,7 @@ func (c *config) DrawHistory() {
 				for j := len(line); j < c.AP.W/2-1; j++ {
 					runes = append(runes, ansipixels.Horizontal)
 				}
-				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)+1, tcolor.Green.Foreground()+strings.Join(runes, ""))
+				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)+1, GREEN+strings.Join(runes, ""))
 			}
 			if c.curRecord != i-1 {
 				c.AP.WriteAtStr(c.AP.W-len(runes), c.AP.H-((len(c.history)-i)*2)-1, strings.Join(runes, "")+tcolor.Reset)

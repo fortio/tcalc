@@ -10,8 +10,9 @@ import (
 )
 
 func TestDisplayStrings(t *testing.T) {
-	binStrings := binaryDisplayStrings(64)
-	if binStrings[4] != "16: 0 0 0 0  0 0 0 0  0 1 0 0  0 0 0 0" {
+	binStrings := binaryDisplayStrings(64, 0)
+	row4, _ := ansipixels.AnsiClean([]byte(binStrings[4]))
+	if string(row4) != "16: 0 0 0 0  0 0 0 0  0 1 0 0  0 0 0 0" {
 		t.Fail()
 	}
 	uintString := uintDisplayString(-64)
@@ -21,7 +22,7 @@ func TestDisplayStrings(t *testing.T) {
 	if unicodeDisplayString(int64('a')) != "Unicode: a" {
 		t.Fail()
 	}
-	strs := displayString(64, errors.New("random error"))
+	strs := displayString(64, 0, errors.New("random error"))
 	errCheck := tcolor.Red.Foreground() + "Last input was invalid" + tcolor.Reset
 	if strs[0] != errCheck {
 		t.Fail()
