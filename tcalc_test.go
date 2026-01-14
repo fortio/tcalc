@@ -18,7 +18,7 @@ func TestDisplayStrings(t *testing.T) {
 	if uintString != "Unsigned Decimal: 18446744073709551552" {
 		t.Fail()
 	}
-	if ASCII(int64('a')) != "ASCII: a" {
+	if unicodeDisplayString(int64('a')) != "Unicode: a" {
 		t.Fail()
 	}
 	strs := displayString(64, errors.New("random error"))
