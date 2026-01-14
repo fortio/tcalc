@@ -24,7 +24,6 @@ func Main() int {
 		"Use true color (24-bit RGB) instead of 8-bit ANSI colors (default is true if COLORTERM is set)")
 	fCpuprofile := flag.String("profile-cpu", "", "write cpu profile to `file`")
 	fMemprofile := flag.String("profile-mem", "", "write memory profile to `file`")
-	fFPS := flag.Float64("fps", 60, "Frames per second (ansipixels rendering)")
 	cli.Main()
 	if *fCpuprofile != "" {
 		f, err := os.Create(*fCpuprofile)
@@ -38,7 +37,7 @@ func Main() int {
 		log.Infof("Writing cpu profile to %s", *fCpuprofile)
 		defer pprof.StopCPUProfile()
 	}
-	ap := ansipixels.NewAnsiPixels(*fFPS)
+	ap := ansipixels.NewAnsiPixels(0)
 	c := configure(ap)
 
 	ap.TrueColor = *fTrueColor
@@ -61,7 +60,21 @@ func Main() int {
 		return nil
 	}
 	_ = ap.OnResize() // initial draw.
-	err := ap.FPSTicks(c.Tick)
+	var err error
+	c.Tick()
+	for {
+		c.AP.StartSyncMode()
+		err := c.AP.ReadOrResizeOrSignal()
+		if err != nil {
+			c.AP.EndSyncMode()
+			break
+		}
+		if !c.Tick() {
+			c.AP.EndSyncMode()
+			break
+		}
+		c.AP.EndSyncMode()
+	}
 	if *fMemprofile != "" {
 		f, errMP := os.Create(*fMemprofile)
 		if errMP != nil {
@@ -74,15 +87,19 @@ func Main() int {
 		log.Infof("Wrote memory profile to %s", *fMemprofile)
 		_ = f.Close()
 	}
-	if err != nil {
-		log.Infof("Exiting on %v", err)
-		return 1
-	}
 	return 0
 }
 
 func (c *config) Tick() bool {
 	c.AP.MoveCursor(c.index+1, c.AP.H-2)
+	if c.AP.LeftClick() && c.AP.MouseRelease() {
+		x, y := c.AP.Mx, c.AP.My
+		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
+			bit := c.determineBitFromXY(x, c.AP.H-2-y)
+			c.clicked = true
+			c.state.Ans = (c.state.Ans) ^ (1 << bit)
+		}
+	}
 	diff := len(c.history) - (c.AP.H / 2) + 1
 	if diff > 0 {
 		c.history = c.history[diff:]
@@ -107,13 +124,5 @@ func (c *config) Tick() bool {
 	c.AP.WriteAtStr(0, c.AP.H-2, c.input)
 	c.DrawHistory()
 	c.AP.MoveCursor(c.index, c.AP.H-2)
-	if c.AP.LeftClick() && c.AP.MouseRelease() {
-		x, y := c.AP.Mx, c.AP.My
-		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
-			bit := c.determineBitFromXY(x, c.AP.H-2-y)
-			c.clicked = true
-			c.state.Ans = (c.state.Ans) ^ (1 << bit)
-		}
-	}
 	return true
 }
