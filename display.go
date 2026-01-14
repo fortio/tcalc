@@ -19,6 +19,17 @@ var (
 	RED   = tcolor.Red.Foreground()
 )
 
+func bitString(cur, prev int) string {
+	switch [2]int{cur, prev} {
+	case [2]int{0, 1}:
+		return RED + "0" + tcolor.Reset
+	case [2]int{1, 0}:
+		return GREEN + "1" + tcolor.Reset
+	default:
+		return strconv.Itoa(int(cur))
+	}
+}
+
 func binaryDisplayStrings(num, prev int64) []string {
 	var rows [4][4][]string
 	var j, k, w int
@@ -27,17 +38,11 @@ func binaryDisplayStrings(num, prev int64) []string {
 		value = max(value, -value)
 		prevValue := (int(((1 << i) & prev) >> i))
 		prevValue = max(prevValue, -prevValue)
-		valueString := strconv.Itoa(value)
+		valueString := bitString((value), (prevValue))
 		if rows[j][k] == nil { //nolint:gosec // we are doing some math to ensure we stay in bounds
 			rows[j][k] = make([]string, 4)
 		}
-		if value != prevValue {
-			if value == 1 {
-				valueString = GREEN + valueString + tcolor.Reset
-			} else {
-				valueString = RED + valueString + tcolor.Reset
-			}
-		}
+
 		rows[j][k][w] = valueString
 		w = (w + 1) % 4
 		if w != 0 {
