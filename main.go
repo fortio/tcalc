@@ -91,17 +91,19 @@ func (c *config) Tick() bool {
 		return false
 	}
 	c.AP.ClearScreen()
-	if c.AP.H > 17 {
+	if c.AP.H > 19 {
 		for i, str := range instructions {
 			c.AP.WriteAtStr(0, i, str)
 		}
 	}
-	strings := displayString(c.state.Ans, c.state.Err)
+	strings := displayString(c.state.Ans, c.state.Prev, c.state.Err)
 	y := c.AP.H - 13
 	for i, str := range strings {
 		c.AP.WriteAtStr(0, y+i, str)
 	}
-	c.AP.WriteAtStr(0, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+	for i := range 27 {
+		c.AP.WriteAtStr(i, c.AP.H, ansipixels.Horizontal)
+	}
 	c.AP.WriteAtStr(0, c.AP.H-2, c.input)
 	c.DrawHistory()
 	c.AP.MoveCursor(c.index, c.AP.H-2)
