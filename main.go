@@ -7,11 +7,12 @@ import (
 	"flag"
 	"os"
 	"runtime/pprof"
-	"slices"
+	"strings"
 
 	"fortio.org/cli"
 	"fortio.org/log"
 	"fortio.org/terminal/ansipixels"
+	"fortio.org/terminal/ansipixels/tcolor"
 )
 
 func main() {
@@ -87,43 +88,39 @@ func Main() int {
 }
 
 func (c *config) Update() {
+	diff := len(c.history) - (c.AP.H / 2) + 1
+	if diff > 0 {
+		c.history = c.history[diff:]
+	}
 	c.AP.ClearScreen()
-	if c.AP.H < 13 {
+	if c.AP.H < 14 {
 		c.AP.WriteAtStr(0, 0, "Terminal too small")
 		c.AP.ShowCursor()
 		return
 	}
-	if c.AP.H > 19 {
+	if c.AP.H > 20 {
 		for i, str := range instructions {
 			c.AP.WriteAtStr(0, i, str)
 		}
 	}
-	strings := displayString(c.state.Ans, c.state.Prev, c.state.Err)
+	c.strings = displayString(c.state.Ans, c.state.Prev, c.state.Err)
 	y := c.AP.H - 13
-	for i, str := range strings {
+	for i, str := range c.strings {
 		c.AP.WriteAtStr(0, y+i, str)
 	}
 	for i := range 27 {
 		c.AP.WriteAtStr(i, c.AP.H, ansipixels.Horizontal)
 	}
-	c.AP.WriteAtStr(0, c.AP.H-2, c.input)
+	c.AP.WriteAtStr(0, c.AP.H-2, strings.Replace(c.input, "_ans_", italicPrefix+GREEN+"_ans_"+tcolor.Reset, -1))
 	c.DrawHistory()
+	if c.strings[0] == "" {
+		c.AP.WriteAtStr(0, c.AP.H-13, c.notification)
+	} else {
+		c.AP.WriteAtStr(0, c.AP.H-14, c.notification)
+	}
 	c.AP.MoveCursor(c.index, c.AP.H-2)
 }
 
 func (c *config) Tick() bool {
-	c.AP.MoveCursor(c.index+1, c.AP.H-2)
-	if c.AP.LeftClick() && c.AP.MouseRelease() {
-		x, y := c.AP.Mx, c.AP.My
-		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
-			bit := c.determineBitFromXY(x, c.AP.H-2-y)
-			c.clicked = true
-			c.state.Ans = (c.state.Ans) ^ (1 << bit)
-		}
-	}
-	diff := len(c.history) - (c.AP.H / 2) + 1
-	if diff > 0 {
-		c.history = c.history[diff:]
-	}
 	return c.handleInput()
 }

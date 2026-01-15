@@ -12,6 +12,8 @@ const (
 	decimalString string = "Decimal: "
 	hexString     string = "Hex: "
 	binaryString  string = "Binary: \n"
+	unicodeString string = "Unicode: "
+	italicPrefix  string = "\x1b[3m"
 )
 
 var (
