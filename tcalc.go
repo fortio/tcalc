@@ -108,6 +108,7 @@ func (c *config) handleMouse() {
 		if index != -1 {
 			c.curRecord = index
 			c.input = c.history[c.curRecord].evaluated
+			c.index = len(c.input)
 		}
 	case c.AP.W > 76 && c.AP.RightClick() && c.AP.MouseRelease() && c.AP.Mx > c.AP.W/2:
 		index := c.recordFromYValue(c.AP.My)
@@ -255,6 +256,7 @@ func (c *config) DrawHistory() {
 	if c.AP.W > 76 {
 		for i := range 27 {
 			c.AP.WriteAtStr(c.AP.W-i, c.AP.H, ansipixels.Horizontal)
+			c.AP.WriteAtStr(c.AP.W-i, c.AP.H-((len(c.history))*2)-1, ansipixels.Horizontal)
 		}
 		for i := range c.AP.H {
 			c.AP.WriteAtStr(c.AP.W/2, i, ansipixels.Vertical)

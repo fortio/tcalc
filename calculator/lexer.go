@@ -12,16 +12,17 @@ func (s *State) Tokenize(input string) ([]string, error) {
 	}
 	tokens := make([]string, 0, len(input))
 	cur := ""
+	inQuote := 0
 	for _, char := range input {
 		numTokens := len(tokens)
 		if numTokens > 0 && tokens[numTokens-1] == "*" && char == '*' {
 			tokens[numTokens-1] = "**"
 			continue
 		}
-		if char == '(' ||
+		if (char == '(' ||
 			char == ')' ||
 			slices.Contains(Length1operatorsInfix, Operator(char)) ||
-			slices.Contains(Length1operatorsPrefix, Operator(char)) {
+			slices.Contains(Length1operatorsPrefix, Operator(char))) && inQuote == 0 {
 			if len(cur) > 0 {
 				tokens = append(tokens, cur)
 				cur = ""
@@ -30,6 +31,22 @@ func (s *State) Tokenize(input string) ([]string, error) {
 			continue
 		}
 		switch char {
+		case '\'':
+			switch inQuote {
+			case 0:
+				if cur != "" {
+					tokens = append(tokens, cur)
+				}
+				cur = "'"
+				inQuote++
+			case 1:
+				cur += "'"
+				tokens = append(tokens, cur)
+				inQuote--
+				cur = ""
+			default:
+				return nil, errors.New("only single runes allowed in single quotes")
+			}
 		case ' ', '\r', '\n':
 			if len(cur) > 0 {
 				tokens = append(tokens, cur)

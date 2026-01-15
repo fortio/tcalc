@@ -19,3 +19,5 @@ tcalc
 .golangci.yml
 # macos
 .DS_Store
+cpu.prof
+mem.prof
