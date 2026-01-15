@@ -62,12 +62,11 @@ func Main() int {
 	c.Update()
 	for {
 		errReading := c.AP.ReadOrResizeOrSignal()
-		c.AP.StartSyncMode()
 		if errReading != nil {
-			c.AP.EndSyncMode()
 			log.Errf("error getting read/resize/signal: %v", errReading)
 			break
 		}
+		c.AP.StartSyncMode()
 		if !c.Tick() {
 			c.AP.EndSyncMode()
 			break
