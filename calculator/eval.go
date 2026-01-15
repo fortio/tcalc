@@ -5,6 +5,7 @@ import (
 	"math"
 	"slices"
 	"strconv"
+	"unicode/utf8"
 )
 
 func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo // evaluation will be hairy
@@ -19,8 +20,9 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 	if curNode.value == nil {
 		return -1, errors.New("bad value")
 	}
-	if (*curNode.value)[0] == '\'' && (*curNode.value)[2] == '\'' {
-		return int64((*curNode.value)[1]), nil
+	if (*curNode.value)[0] == '\'' && (*curNode.value)[len(*curNode.value)-1] == '\'' {
+		r, _ := utf8.DecodeRune([]byte((*curNode.value)[1 : len(*curNode.value)-1]))
+		return int64(r), nil
 	}
 	if *curNode.value == "-" && (curNode.left == nil || curNode.left.value == nil) {
 		num, err := s.Eval(*curNode.right)
