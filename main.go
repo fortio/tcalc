@@ -23,6 +23,7 @@ func Main() int {
 	fTrueColor := flag.Bool("truecolor", truecolorDefault,
 		"Use true color (24-bit RGB) instead of 8-bit ANSI colors (default is true if COLORTERM is set)")
 	fCpuprofile := flag.String("profile-cpu", "", "write cpu profile to `file`")
+	fpsFlag := flag.Float64("fps", 60, "set fps for display refresh")
 	fMemprofile := flag.String("profile-mem", "", "write memory profile to `file`")
 	cli.Main()
 	if *fCpuprofile != "" {
@@ -37,7 +38,7 @@ func Main() int {
 		log.Infof("Writing cpu profile to %s", *fCpuprofile)
 		defer pprof.StopCPUProfile()
 	}
-	ap := ansipixels.NewAnsiPixels(0)
+	ap := ansipixels.NewAnsiPixels(*fpsFlag)
 	c := configure(ap)
 
 	ap.TrueColor = *fTrueColor
@@ -59,19 +60,13 @@ func Main() int {
 		return nil
 	}
 	_ = ap.OnResize() // initial draw.
-	for {
-		errReading := c.AP.ReadOrResizeOrSignal()
-		if errReading != nil {
-			log.Errf("error getting read/resize/signal: %v", errReading)
-			break
-		}
+	err := ap.FPSTicks(func() bool {
 		if !c.Tick() {
-			break
+			return false
 		}
-		c.AP.StartSyncMode()
 		c.Update()
-		c.AP.EndSyncMode()
-	}
+		return true
+	})
 	if *fMemprofile != "" {
 		f, errMP := os.Create(*fMemprofile)
 		if errMP != nil {
@@ -83,6 +78,10 @@ func Main() int {
 		}
 		log.Infof("Wrote memory profile to %s", *fMemprofile)
 		_ = f.Close()
+	}
+	if err != nil {
+		log.Infof("Exiting on %v", err)
+		return 1
 	}
 	return 0
 }
