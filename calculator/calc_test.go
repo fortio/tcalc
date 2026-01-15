@@ -22,6 +22,7 @@ func TestExec(t *testing.T) {
 		{"1^3", 2, false},
 		{"~1", -2, false},
 		{"2>>1", 1, false},
+		{"'a'^30", 127, false},
 	}
 	for _, tc := range testCases {
 		s := NewState()
