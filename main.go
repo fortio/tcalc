@@ -23,6 +23,7 @@ func Main() int {
 	fTrueColor := flag.Bool("truecolor", truecolorDefault,
 		"Use true color (24-bit RGB) instead of 8-bit ANSI colors (default is true if COLORTERM is set)")
 	fCpuprofile := flag.String("profile-cpu", "", "write cpu profile to `file`")
+	fpsFlag := flag.Float64("fps", 60, "set fps for display refresh")
 	fMemprofile := flag.String("profile-mem", "", "write memory profile to `file`")
 	cli.Main()
 	if *fCpuprofile != "" {
@@ -37,7 +38,7 @@ func Main() int {
 		log.Infof("Writing cpu profile to %s", *fCpuprofile)
 		defer pprof.StopCPUProfile()
 	}
-	ap := ansipixels.NewAnsiPixels(0)
+	ap := ansipixels.NewAnsiPixels(*fpsFlag)
 	c := configure(ap)
 
 	ap.TrueColor = *fTrueColor
@@ -53,29 +54,19 @@ func Main() int {
 	c.AP.MouseClickOn()
 	ap.SyncBackgroundColor()
 	ap.OnResize = func() error {
-		ap.ClearScreen()
 		ap.StartSyncMode()
-		c.Tick()
+		c.Update()
 		ap.EndSyncMode()
 		return nil
 	}
 	_ = ap.OnResize() // initial draw.
-	var err error
-	c.Tick()
-	for {
-		c.AP.StartSyncMode()
-		errReading := c.AP.ReadOrResizeOrSignal()
-		if errReading != nil {
-			c.AP.EndSyncMode()
-			log.Errf("error getting read/resize/signal: %v", errReading)
-			break
-		}
+	err := ap.FPSTicks(func() bool {
 		if !c.Tick() {
-			c.AP.EndSyncMode()
-			break
+			return false
 		}
-		c.AP.EndSyncMode()
-	}
+		c.Update()
+		return true
+	})
 	if *fMemprofile != "" {
 		f, errMP := os.Create(*fMemprofile)
 		if errMP != nil {
@@ -83,32 +74,25 @@ func Main() int {
 		}
 		errMP = pprof.WriteHeapProfile(f)
 		if errMP != nil {
-			return log.FErrf("can't write mem profile: %v", err)
+			return log.FErrf("can't write mem profile: %v", errMP)
 		}
 		log.Infof("Wrote memory profile to %s", *fMemprofile)
 		_ = f.Close()
 	}
+	if err != nil {
+		log.Infof("Exiting on %v", err)
+		return 1
+	}
 	return 0
 }
 
-func (c *config) Tick() bool {
-	c.AP.MoveCursor(c.index+1, c.AP.H-2)
-	if c.AP.LeftClick() && c.AP.MouseRelease() {
-		x, y := c.AP.Mx, c.AP.My
-		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
-			bit := c.determineBitFromXY(x, c.AP.H-2-y)
-			c.clicked = true
-			c.state.Ans = (c.state.Ans) ^ (1 << bit)
-		}
-	}
-	diff := len(c.history) - (c.AP.H / 2) + 1
-	if diff > 0 {
-		c.history = c.history[diff:]
-	}
-	if !c.handleInput() {
-		return false
-	}
+func (c *config) Update() {
 	c.AP.ClearScreen()
+	if c.AP.H < 13 {
+		c.AP.WriteAtStr(0, 0, "Terminal too small")
+		c.AP.ShowCursor()
+		return
+	}
 	if c.AP.H > 19 {
 		for i, str := range instructions {
 			c.AP.WriteAtStr(0, i, str)
@@ -125,5 +109,21 @@ func (c *config) Tick() bool {
 	c.AP.WriteAtStr(0, c.AP.H-2, c.input)
 	c.DrawHistory()
 	c.AP.MoveCursor(c.index, c.AP.H-2)
-	return true
+}
+
+func (c *config) Tick() bool {
+	c.AP.MoveCursor(c.index+1, c.AP.H-2)
+	if c.AP.LeftClick() && c.AP.MouseRelease() {
+		x, y := c.AP.Mx, c.AP.My
+		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
+			bit := c.determineBitFromXY(x, c.AP.H-2-y)
+			c.clicked = true
+			c.state.Ans = (c.state.Ans) ^ (1 << bit)
+		}
+	}
+	diff := len(c.history) - (c.AP.H / 2) + 1
+	if diff > 0 {
+		c.history = c.history[diff:]
+	}
+	return c.handleInput()
 }

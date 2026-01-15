@@ -173,7 +173,6 @@ func (c *config) handleEnter() {
 
 func (c *config) DrawHistory() {
 	if c.AP.W > 76 {
-		// c.AP.WriteAtStr(c.AP.W-27, c.AP.H, "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯")
 		for i := range 27 {
 			c.AP.WriteAtStr(c.AP.W-i, c.AP.H, ansipixels.Horizontal)
 		}
