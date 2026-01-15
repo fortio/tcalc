@@ -68,8 +68,7 @@ func (c *config) handleMouse() {
 		c.handleUp()
 	case c.AP.MouseWheelDown():
 		c.handleDown()
-	}
-	if c.AP.LeftClick() && c.AP.MouseRelease() {
+	case c.AP.LeftClick() && c.AP.MouseRelease():
 		x, y := c.AP.Mx, c.AP.My
 		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
 			bit := c.determineBitFromXY(x, c.AP.H-2-y)
@@ -110,8 +109,7 @@ func (c *config) handleMouse() {
 			c.curRecord = index
 			c.input = c.history[c.curRecord].evaluated
 		}
-	}
-	if c.AP.W > 76 && c.AP.RightClick() && c.AP.MouseRelease() && c.AP.Mx > c.AP.W/2 {
+	case c.AP.W > 76 && c.AP.RightClick() && c.AP.MouseRelease() && c.AP.Mx > c.AP.W/2:
 		index := c.recordFromYValue(c.AP.My)
 		if index != -1 {
 			c.AP.CopyToClipboard(strconv.Itoa(int(c.history[index].finalValue)))
@@ -264,7 +262,7 @@ func (c *config) DrawHistory() {
 		for i, record := range c.history {
 			line := record.evaluated + ": " + strconv.Itoa(int(record.finalValue))
 			lengthToUse := len(line)
-			line = strings.Replace(line, "_ans_", italicPrefix+GREEN+"_ans_"+tcolor.Reset, -1)
+			line = strings.ReplaceAll(line, "_ans_", italicPrefix+GREEN+"_ans_"+tcolor.Reset)
 			runes := make([]string, lengthToUse, c.AP.W)
 			for i := range lengthToUse {
 				runes[i] = ansipixels.Horizontal
