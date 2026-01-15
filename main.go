@@ -91,6 +91,11 @@ func Main() int {
 
 func (c *config) Update() {
 	c.AP.ClearScreen()
+	if c.AP.H < 13 {
+		c.AP.WriteAtStr(0, 0, "Terminal too small")
+		c.AP.ShowCursor()
+		return
+	}
 	if c.AP.H > 19 {
 		for i, str := range instructions {
 			c.AP.WriteAtStr(0, i, str)
