@@ -34,4 +34,20 @@ docker run -ti fortio/tcalc
 tcalc help
 
 flags:
+  -fps float
+        set fps for display refresh (default 60)
+  -logger-force-color
+        Force color output even if stderr isn't a terminal
+  -logger-no-color
+        Prevent colorized output even if stderr is a terminal
+  -loglevel level
+        log level, one of [Debug Verbose Info Warning Error Critical Fatal] (default Info)
+  -profile-cpu file
+        write cpu profile to file
+  -profile-mem file
+        write memory profile to file
+  -quiet
+        Quiet mode, sets loglevel to Error (quietly) to reduces the output
+  -truecolor
+        Use true color (24-bit RGB) instead of 8-bit ANSI colors (default is true if COLORTERM is set) (default true)
 ```
