@@ -53,18 +53,16 @@ func Main() int {
 	c.AP.MouseClickOn()
 	ap.SyncBackgroundColor()
 	ap.OnResize = func() error {
-		ap.ClearScreen()
 		ap.StartSyncMode()
-		c.Tick()
+		c.Update()
 		ap.EndSyncMode()
 		return nil
 	}
 	_ = ap.OnResize() // initial draw.
-	var err error
-	c.Tick()
+	c.Update()
 	for {
-		c.AP.StartSyncMode()
 		errReading := c.AP.ReadOrResizeOrSignal()
+		c.AP.StartSyncMode()
 		if errReading != nil {
 			c.AP.EndSyncMode()
 			log.Errf("error getting read/resize/signal: %v", errReading)
@@ -74,6 +72,7 @@ func Main() int {
 			c.AP.EndSyncMode()
 			break
 		}
+		c.Update()
 		c.AP.EndSyncMode()
 	}
 	if *fMemprofile != "" {
@@ -83,7 +82,7 @@ func Main() int {
 		}
 		errMP = pprof.WriteHeapProfile(f)
 		if errMP != nil {
-			return log.FErrf("can't write mem profile: %v", err)
+			return log.FErrf("can't write mem profile: %v", errMP)
 		}
 		log.Infof("Wrote memory profile to %s", *fMemprofile)
 		_ = f.Close()
@@ -91,23 +90,7 @@ func Main() int {
 	return 0
 }
 
-func (c *config) Tick() bool {
-	c.AP.MoveCursor(c.index+1, c.AP.H-2)
-	if c.AP.LeftClick() && c.AP.MouseRelease() {
-		x, y := c.AP.Mx, c.AP.My
-		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
-			bit := c.determineBitFromXY(x, c.AP.H-2-y)
-			c.clicked = true
-			c.state.Ans = (c.state.Ans) ^ (1 << bit)
-		}
-	}
-	diff := len(c.history) - (c.AP.H / 2) + 1
-	if diff > 0 {
-		c.history = c.history[diff:]
-	}
-	if !c.handleInput() {
-		return false
-	}
+func (c *config) Update() {
 	c.AP.ClearScreen()
 	if c.AP.H > 19 {
 		for i, str := range instructions {
@@ -125,5 +108,21 @@ func (c *config) Tick() bool {
 	c.AP.WriteAtStr(0, c.AP.H-2, c.input)
 	c.DrawHistory()
 	c.AP.MoveCursor(c.index, c.AP.H-2)
-	return true
+}
+
+func (c *config) Tick() bool {
+	c.AP.MoveCursor(c.index+1, c.AP.H-2)
+	if c.AP.LeftClick() && c.AP.MouseRelease() {
+		x, y := c.AP.Mx, c.AP.My
+		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
+			bit := c.determineBitFromXY(x, c.AP.H-2-y)
+			c.clicked = true
+			c.state.Ans = (c.state.Ans) ^ (1 << bit)
+		}
+	}
+	diff := len(c.history) - (c.AP.H / 2) + 1
+	if diff > 0 {
+		c.history = c.history[diff:]
+	}
+	return c.handleInput()
 }
