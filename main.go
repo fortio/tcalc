@@ -65,11 +65,10 @@ func Main() int {
 			log.Errf("error getting read/resize/signal: %v", errReading)
 			break
 		}
-		c.AP.StartSyncMode()
 		if !c.Tick() {
-			c.AP.EndSyncMode()
 			break
 		}
+		c.AP.StartSyncMode()
 		c.Update()
 		c.AP.EndSyncMode()
 	}
