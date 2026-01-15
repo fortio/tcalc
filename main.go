@@ -59,7 +59,6 @@ func Main() int {
 		return nil
 	}
 	_ = ap.OnResize() // initial draw.
-	c.Update()
 	for {
 		errReading := c.AP.ReadOrResizeOrSignal()
 		if errReading != nil {
