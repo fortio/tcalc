@@ -20,7 +20,6 @@ type config struct {
 	history      []historyRecord
 	curRecord    int
 	clicked      bool
-	clickedValue int64
 	strings      []string
 	notification string
 }
@@ -46,7 +45,7 @@ var instructions = []string{
 }
 
 func configure(ap *ansipixels.AnsiPixels) config {
-	return config{ap, calculator.NewState(), "", 0, -1, []historyRecord{{"0", 0}}, -1, false, 0, nil, ""}
+	return config{ap, calculator.NewState(), "", 0, -1, []historyRecord{{"0", 0}}, -1, false, nil, ""}
 }
 
 func (c *config) determineBitFromXY(x, y int) int {
@@ -97,11 +96,7 @@ func (c *config) handleMouse() {
 				c.AP.CopyToClipboard(c.strings[5][len(octalString):])
 				c.notification = GREEN + "Octal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 7:
-				if c.clicked {
-					c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.clickedValue))
-				} else {
-					c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.state.Ans))
-				}
+				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.state.Ans))
 				c.notification = GREEN + "Binary value copied to clipboard" + tcolor.Reset
 			}
 			return
