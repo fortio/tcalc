@@ -81,23 +81,26 @@ func (c *config) handleMouse() {
 		}
 		if x <= c.AP.W/2 {
 			switch y {
-			case c.AP.H - 11:
+			case c.AP.H - 12:
 				c.AP.CopyToClipboard(c.strings[1][len(unicodeString):])
 				c.notification = GREEN + "Unicode value copied to clipboard" + tcolor.Reset
-			case c.AP.H - 10:
+			case c.AP.H - 11:
 				c.AP.CopyToClipboard(c.strings[2][len(decimalString):])
 				c.notification = GREEN + "Decimal value copied to clipboard" + tcolor.Reset
-			case c.AP.H - 9:
-				c.AP.CopyToClipboard(c.strings[3][len("Unsigned "+decimalString):])
+			case c.AP.H - 10:
+				c.AP.CopyToClipboard(c.strings[3][len("Unsigned: "):])
 				c.notification = GREEN + "Unsigned decimal value copied to clipboard" + tcolor.Reset
-			case c.AP.H - 8:
+			case c.AP.H - 9:
 				c.AP.CopyToClipboard(c.strings[4][len(hexString):])
 				c.notification = GREEN + "Hexadecimal value copied to clipboard" + tcolor.Reset
+			case c.AP.H - 8:
+				c.AP.CopyToClipboard(c.strings[5][len(octalString):])
+				c.notification = GREEN + "Octal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 7:
 				if c.clicked {
-					c.AP.CopyToClipboard(fmt.Sprintf("%b", c.clickedValue))
+					c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.clickedValue))
 				} else {
-					c.AP.CopyToClipboard(fmt.Sprintf("%b", c.state.Ans))
+					c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.state.Ans))
 				}
 				c.notification = GREEN + "Binary value copied to clipboard" + tcolor.Reset
 			}

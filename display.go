@@ -11,6 +11,7 @@ import (
 const (
 	decimalString string = "Decimal: "
 	hexString     string = "Hex: "
+	octalString   string = "Octal: "
 	binaryString  string = "Binary: \n"
 	unicodeString string = "Unicode: "
 	italicPrefix  string = "\x1b[3m"
@@ -56,10 +57,11 @@ func binaryDisplayStrings(num, prev int64) []string {
 		}
 		j = (j + 1) % 4
 	}
-	display := []string{binaryString}
+	display := make([]string, 0, 5)
+	display = append(display, binaryString)
 	for i := range 4 {
 		displayValue := strconv.Itoa((64 - (16 * i)))
-		var inner []string
+		inner := make([]string, 0, 4)
 		for j := range 4 {
 			inner = append(inner, strings.Join(rows[i][j], " "))
 		}
@@ -76,12 +78,17 @@ func decimalDisplayString(num int64) string {
 
 func uintDisplayString(num int64) string {
 	//nolint:gosec // we just want to display the unsigned representation of our number
-	return "Unsigned " + decimalString + strconv.FormatUint((uint64(num)), 10)
+	return "Unsigned: " + strconv.FormatUint((uint64(num)), 10)
 }
 
 func hexDisplayString(num int64) string {
 	//nolint:gosec // I think it makes the most sense to display the hex value as unsigned
-	return hexString + fmt.Sprintf("%X\n", uint64(num))
+	return hexString + fmt.Sprintf("0x%X", uint64(num))
+}
+
+func octalDisplayString(num int64) string {
+	//nolint:gosec // I think it makes the most sense to display the octal value as unsigned
+	return octalString + fmt.Sprintf("0o%o", uint64(num))
 }
 
 func displayString(num, prev int64, err error) []string {
@@ -91,6 +98,7 @@ func displayString(num, prev int64, err error) []string {
 		decimalDisplayString(num),
 		uintDisplayString(num),
 		hexDisplayString(num),
+		octalDisplayString(num),
 	},
 		binaryDisplayStrings(num, prev)...,
 	)
