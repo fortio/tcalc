@@ -17,12 +17,9 @@ func TestDisplayStrings(t *testing.T) {
 	}
 	uintString := uintDisplayString(-64)
 	if uintString != "Unsigned: 18446744073709551552" {
-		fmt.Println(uintString)
-		fmt.Println("failed unsigned")
 		t.Fail()
 	}
 	if unicodeDisplayString(int64('a')) != "Unicode: a" {
-		fmt.Println("failed unicode")
 		t.Fail()
 	}
 	strs := displayString(64, 0, errors.New("random error"))
@@ -30,8 +27,6 @@ func TestDisplayStrings(t *testing.T) {
 	errCheck := "Last input was invalid"
 	checkString, _ := ansipixels.AnsiClean([]byte(strs[0]))
 	if string(checkString) != errCheck {
-		fmt.Println("failed from check")
-		fmt.Println(string(checkString))
 		t.Fail()
 	}
 }
