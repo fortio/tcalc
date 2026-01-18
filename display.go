@@ -11,6 +11,7 @@ import (
 const (
 	decimalString string = "Decimal: "
 	hexString     string = "Hex: "
+	octalString   string = "Octal: "
 	binaryString  string = "Binary: \n"
 	unicodeString string = "Unicode: "
 	italicPrefix  string = "\x1b[3m"
@@ -76,12 +77,17 @@ func decimalDisplayString(num int64) string {
 
 func uintDisplayString(num int64) string {
 	//nolint:gosec // we just want to display the unsigned representation of our number
-	return "Unsigned " + decimalString + strconv.FormatUint((uint64(num)), 10)
+	return "Unsigned: " + strconv.FormatUint((uint64(num)), 10)
 }
 
 func hexDisplayString(num int64) string {
 	//nolint:gosec // I think it makes the most sense to display the hex value as unsigned
-	return hexString + fmt.Sprintf("%X\n", uint64(num))
+	return hexString + fmt.Sprintf("0x%X\n", uint64(num))
+}
+
+func octalDisplayString(num int64) string {
+	//nolint:gosec // I think it makes the most sense to display the octal value as unsigned
+	return octalString + fmt.Sprintf("0o%o\n", uint64(num))
 }
 
 func displayString(num, prev int64, err error) []string {
@@ -91,6 +97,7 @@ func displayString(num, prev int64, err error) []string {
 		decimalDisplayString(num),
 		uintDisplayString(num),
 		hexDisplayString(num),
+		octalDisplayString(num),
 	},
 		binaryDisplayStrings(num, prev)...,
 	)

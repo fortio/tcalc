@@ -104,7 +104,7 @@ func (c *config) Update() {
 		}
 	}
 	c.strings = displayString(c.state.Ans, c.state.Prev, c.state.Err)
-	y := c.AP.H - 13
+	y := c.AP.H - 14
 	for i, str := range c.strings {
 		c.AP.WriteAtStr(0, y+i, str)
 	}
@@ -114,9 +114,9 @@ func (c *config) Update() {
 	c.AP.WriteAtStr(0, c.AP.H-2, strings.ReplaceAll(c.input, "_ans_", italicPrefix+GREEN+"_ans_"+tcolor.Reset))
 	c.DrawHistory()
 	if c.strings[0] == "" {
-		c.AP.WriteAtStr(0, c.AP.H-13, c.notification)
-	} else {
 		c.AP.WriteAtStr(0, c.AP.H-14, c.notification)
+	} else {
+		c.AP.WriteAtStr(0, c.AP.H-15, c.notification)
 	}
 	c.AP.MoveCursor(c.index, c.AP.H-2)
 }

@@ -2,11 +2,11 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"fortio.org/tcalc/calculator"
 	"fortio.org/terminal/ansipixels"
-	"fortio.org/terminal/ansipixels/tcolor"
 )
 
 func TestDisplayStrings(t *testing.T) {
@@ -16,15 +16,22 @@ func TestDisplayStrings(t *testing.T) {
 		t.Fail()
 	}
 	uintString := uintDisplayString(-64)
-	if uintString != "Unsigned Decimal: 18446744073709551552" {
+	if uintString != "Unsigned: 18446744073709551552" {
+		fmt.Println(uintString)
+		fmt.Println("failed unsigned")
 		t.Fail()
 	}
 	if unicodeDisplayString(int64('a')) != "Unicode: a" {
+		fmt.Println("failed unicode")
 		t.Fail()
 	}
 	strs := displayString(64, 0, errors.New("random error"))
-	errCheck := tcolor.Red.Foreground() + "Last input was invalid" + tcolor.Reset
-	if strs[0] != errCheck {
+	fmt.Println(strs)
+	errCheck := "Last input was invalid"
+	checkString, _ := ansipixels.AnsiClean([]byte(strs[0]))
+	if string(checkString) != errCheck {
+		fmt.Println("failed from check")
+		fmt.Println(string(checkString))
 		t.Fail()
 	}
 }
