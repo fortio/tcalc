@@ -29,6 +29,11 @@ func TestDisplayStrings(t *testing.T) {
 	if string(checkString) != errCheck {
 		t.Fail()
 	}
+	octal := octalDisplayString(-64)
+	if octal != "Octal: 0o1777777777777777777700" {
+		fmt.Println(octal)
+		t.Fail()
+	}
 }
 
 func TestBitPosition(t *testing.T) {
