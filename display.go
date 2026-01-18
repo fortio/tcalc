@@ -57,10 +57,11 @@ func binaryDisplayStrings(num, prev int64) []string {
 		}
 		j = (j + 1) % 4
 	}
-	display := []string{binaryString}
+	display := make([]string, 0, 5)
+	display = append(display, binaryString)
 	for i := range 4 {
 		displayValue := strconv.Itoa((64 - (16 * i)))
-		var inner []string
+		inner := make([]string, 0, 4)
 		for j := range 4 {
 			inner = append(inner, strings.Join(rows[i][j], " "))
 		}
