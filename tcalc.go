@@ -35,12 +35,13 @@ var validClickXs = []int{
 
 var instructions = []string{
 	"Type expressions to evaluate.",
-	"SUM +   SUB -   MUL *   DIV /",
-	"MOD %   AND &   OR |   XOR ^",
-	"POW **  LSHIFT <<   RSHIFT >>",
-	"NOT ~   ASSIGN =",
+	"Arithmetic operations:",
+	" + - * / % ** (** for exponents)",
+	"Bitwise operations:",
+	" & | ^ ~ << >>",
+	"Assign to variables with =.",
 	"Click on individual bits to flip them.",
-	"up and down arrows to navigate history.",
+	"Up and down arrows to navigate history.",
 	"Press ctrl+c to quit.",
 }
 
@@ -81,19 +82,19 @@ func (c *config) handleMouse() {
 		if x <= c.AP.W/2 {
 			switch y {
 			case c.AP.H - 12:
-				c.AP.CopyToClipboard(c.strings[1][len(unicodeString):])
+				c.AP.CopyToClipboard(strings.Trim(c.strings[1][len(unicodeString):], " "))
 				c.notification = GREEN + "Unicode value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 11:
-				c.AP.CopyToClipboard(c.strings[2][len(decimalString):])
+				c.AP.CopyToClipboard(strings.Trim(c.strings[2][len(decimalString):], " "))
 				c.notification = GREEN + "Decimal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 10:
-				c.AP.CopyToClipboard(c.strings[3][len("Unsigned: "):])
+				c.AP.CopyToClipboard(strings.Trim(c.strings[3][len("Unsigned:  "):], " "))
 				c.notification = GREEN + "Unsigned decimal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 9:
-				c.AP.CopyToClipboard(c.strings[4][len(hexString):])
+				c.AP.CopyToClipboard(strings.Trim(c.strings[4][len(hexString):], " "))
 				c.notification = GREEN + "Hexadecimal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 8:
-				c.AP.CopyToClipboard(c.strings[5][len(octalString):])
+				c.AP.CopyToClipboard(strings.Trim(c.strings[5][len(octalString):], " "))
 				c.notification = GREEN + "Octal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 7:
 				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.state.Ans))
@@ -108,12 +109,14 @@ func (c *config) handleMouse() {
 			c.input = c.history[c.curRecord].evaluated
 			c.index = len(c.input)
 		}
+		return
 	case c.AP.W > 76 && c.AP.RightClick() && c.AP.MouseRelease() && c.AP.Mx > c.AP.W/2:
 		index := c.recordFromYValue(c.AP.My)
 		if index != -1 {
 			c.AP.CopyToClipboard(strconv.Itoa(int(c.history[index].finalValue)))
 			c.notification = GREEN + "History copied to clipboard" + tcolor.Reset
 		}
+		return
 	}
 }
 
@@ -125,15 +128,15 @@ func (c *config) recordFromYValue(y int) int {
 	return -1
 }
 
-func (c *config) handleInput() bool {
-	c.handleMouse()
+// handleInput returns if there was input and if we should quit.
+func (c *config) handleInput() (bool, bool) {
 	switch len(c.AP.Data) {
 	case 0:
-		return true
+		return false, false
 	case 1:
 		switch c.AP.Data[0] {
-		case '\x03':
-			return false
+		case '\x03', '\x04':
+			return true, true
 		case '\x7f':
 			before, after := c.input[:max(0, c.index-1)], c.input[c.index:]
 			c.input = before + after
@@ -171,7 +174,7 @@ func (c *config) handleInput() bool {
 			c.index += len(string(c.AP.Data))
 		}
 	}
-	return true
+	return true, false
 }
 
 func (c *config) handleDown() {
@@ -179,7 +182,7 @@ func (c *config) handleDown() {
 		c.curRecord = (c.curRecord + 1) % len(c.history)
 		c.input = c.history[c.curRecord].evaluated
 		if c.curRecord == 1 {
-			c.input = strings.Replace(c.history[c.curRecord].evaluated, "_ans_",
+			c.input = strings.Replace(c.history[c.curRecord].evaluated, "ans",
 				strconv.Itoa(int(c.history[c.curRecord-1].finalValue)), 1)
 		}
 		c.index = len(c.input)
@@ -215,7 +218,7 @@ func (c *config) handleEnter() {
 	if lengthTrimmed >= 2 && (trimmed[lengthTrimmed-2:] == "<<" || trimmed[lengthTrimmed-2:] == ">>") {
 		c.input += "1"
 	}
-	ansValue := "_ans_"
+	ansValue := "ans"
 	if c.clicked {
 		ansValue = strconv.Itoa(int(c.state.Ans))
 	}
@@ -232,7 +235,7 @@ func (c *config) handleEnter() {
 		if stringToReplace[0] == '-' {
 			stringToReplace = "(" + stringToReplace + ")"
 		}
-		c.history[len(c.history)-1].evaluated = strings.ReplaceAll(c.history[len(c.history)-1].evaluated, "_ans_", stringToReplace)
+		c.history[len(c.history)-1].evaluated = strings.ReplaceAll(c.history[len(c.history)-1].evaluated, "ans", stringToReplace)
 	}
 	c.curRecord = -1
 	err := c.state.Exec(c.input)
@@ -262,7 +265,7 @@ func (c *config) DrawHistory() {
 		for i, record := range c.history {
 			line := record.evaluated + ": " + strconv.Itoa(int(record.finalValue))
 			lengthToUse := len(line)
-			line = strings.ReplaceAll(line, "_ans_", tcolor.Italic+GREEN+"_ans_"+tcolor.Reset)
+			line = strings.ReplaceAll(line, "ans", tcolor.Italic+GREEN+"ans"+tcolor.Reset)
 			runes := make([]string, lengthToUse, c.AP.W)
 			for i := range lengthToUse {
 				runes[i] = ansipixels.Horizontal

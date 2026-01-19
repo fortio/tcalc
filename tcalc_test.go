@@ -16,10 +16,10 @@ func TestDisplayStrings(t *testing.T) {
 		t.Fail()
 	}
 	uintString := uintDisplayString(-64)
-	if uintString != "Unsigned: 18446744073709551552" {
+	if uintString != "Unsigned : 18446744073709551552" {
 		t.Fail()
 	}
-	if unicodeDisplayString(int64('a')) != "Unicode: a" {
+	if unicodeDisplayString(int64('a')) != "Unicode  : a" {
 		t.Fail()
 	}
 	strs := displayString(64, 0, errors.New("random error"))
@@ -30,7 +30,7 @@ func TestDisplayStrings(t *testing.T) {
 		t.Fail()
 	}
 	octal := octalDisplayString(-64)
-	if octal != "Octal: 0o1777777777777777777700" {
+	if octal != "Octal    : 0o1777777777777777777700" {
 		fmt.Println(octal)
 		t.Fail()
 	}
@@ -71,8 +71,8 @@ func TestConfigHandleInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := configure(tt.ap)
 			c.AP.Data = tt.data
-			got := c.handleInput()
-			if tt.want != got {
+			got, quit := c.handleInput()
+			if tt.want != got || quit {
 				t.Errorf("handleInput() = %v, want %v", got, tt.want)
 			}
 		})
@@ -81,27 +81,58 @@ func TestConfigHandleInput(t *testing.T) {
 
 func TestConfigHandleMouseInput(t *testing.T) {
 	ap := ansipixels.NewAnsiPixels(30)
+	ap.Mouse = true
+
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for receiver constructor.
-		ap   *ansipixels.AnsiPixels
-		data []byte
-		want bool
+		ap       *ansipixels.AnsiPixels
+		data     []byte
+		want     bool
+		mbuttons int
 	}{
-		{"test mouse click", ap, []byte{0x1b, 0x5b, 0x4d, 0x20, 0x21, 0x41}, true},
-		{"test bit flip with click", ap, []byte{0x1b, 0x5b, 0x4d, 0x20, 0x21, 0x41}, true},
-		{"test other mouse", ap, []byte{0x1b, 0x5b, 0x4d, 0x20, 0x21, 0x42}, true},
+		{"test scroll up ", ap, []byte{}, false, ansipixels.MouseWheelUp},
+		{"test scroll down ", ap, []byte{}, false, ansipixels.MouseWheelDown},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := configure(tt.ap)
 			c.AP.Data = tt.data
-			got := c.handleInput()
-			if tt.want != got {
+			c.AP.Mbuttons = tt.mbuttons
+			got, quit := c.handleInput()
+			if tt.want != got || quit {
 				t.Errorf("handleInput() = %v, want %v", got, tt.want)
 			}
+			c.handleMouse()
 		})
 	}
+	t.Run("test clicks", func(_ *testing.T) {
+		c := configure(ap)
+		for y := 88; y < 94; y++ {
+			c.AP.Mouse = true
+			c.AP.Mrelease = true
+			c.AP.Mbuttons = 0
+			c.AP.H = 100
+			c.AP.W = 100
+			c.AP.My = y
+			c.AP.Mx = 30
+			c.strings = displayString(5, 20, nil)
+			c.history = append(c.history, []historyRecord{{"", 5}, {"daf", 0}}...)
+			c.handleMouse()
+		}
+		c.AP.Mouse = true
+		c.AP.Mrelease = true
+		c.AP.Mbuttons = 0
+		c.AP.H = 100
+		c.AP.W = 100
+		c.AP.My = 88
+		c.AP.Mx = 86
+		c.strings = displayString(5, 20, nil)
+		c.history = append(c.history, []historyRecord{{"", 5}, {"daf", 0}}...)
+		c.handleMouse()
+		c.AP.Mbuttons = ansipixels.MouseRight
+		c.handleMouse()
+	})
 }
 
 func TestAssign(t *testing.T) {

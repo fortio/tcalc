@@ -27,7 +27,7 @@ type (
 )
 
 const (
-	SUM  Operator = '+'
+	ADD  Operator = '+'
 	SUB  Operator = '-'
 	PROD Operator = '*'
 	DIV  Operator = '/'
@@ -49,7 +49,7 @@ const (
 )
 
 var Length1operatorsInfix = []Operator{
-	SUM, SUB, PROD, DIV, XOR, AND, MOD, ASSIGN, OR,
+	ADD, SUB, PROD, DIV, XOR, AND, MOD, ASSIGN, OR,
 }
 
 var Length1operatorsPrefix = []Operator{

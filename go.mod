@@ -10,9 +10,7 @@ require (
 
 require (
 	fortio.org/safecast v1.2.0 // indirect
-	fortio.org/sets v1.3.0 // indirect
 	fortio.org/struct2env v0.4.2 // indirect
-	fortio.org/tcolor v1.5.2 // indirect
 	fortio.org/version v1.0.4 // indirect
 	github.com/jbuchbinder/gopnm v0.0.0-20251119211316-bb594e0d2e34 // indirect
 	github.com/kortschak/goroutine v1.1.3 // indirect
