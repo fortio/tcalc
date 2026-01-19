@@ -262,7 +262,7 @@ func (c *config) DrawHistory() {
 		for i, record := range c.history {
 			line := record.evaluated + ": " + strconv.Itoa(int(record.finalValue))
 			lengthToUse := len(line)
-			line = strings.ReplaceAll(line, "_ans_", italicPrefix+GREEN+"_ans_"+tcolor.Reset)
+			line = strings.ReplaceAll(line, "_ans_", tcolor.Italic+GREEN+"_ans_"+tcolor.Reset)
 			runes := make([]string, lengthToUse, c.AP.W)
 			for i := range lengthToUse {
 				runes[i] = ansipixels.Horizontal
