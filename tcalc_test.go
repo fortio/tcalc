@@ -83,14 +83,6 @@ func TestConfigHandleMouseInput(t *testing.T) {
 	ap := ansipixels.NewAnsiPixels(30)
 	ap.Mouse = true
 
-	// func (ap *AnsiPixels) MouseWheelUp() bool {
-	// 	return ap.Mouse && ((ap.Mbuttons & MouseWheelMask) == MouseWheelUp)
-	// }
-
-	// func (ap *AnsiPixels) MouseWheelDown() bool {
-	// 	return ap.Mouse && ((ap.Mbuttons & MouseWheelMask) == MouseWheelDown)
-	// }
-
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for receiver constructor.
@@ -114,7 +106,7 @@ func TestConfigHandleMouseInput(t *testing.T) {
 			c.handleMouse()
 		})
 	}
-	t.Run("test clicks", func(t *testing.T) {
+	t.Run("test clicks", func(_ *testing.T) {
 		c := configure(ap)
 		c.AP.Mouse = true
 		c.AP.Mrelease = true
@@ -122,7 +114,8 @@ func TestConfigHandleMouseInput(t *testing.T) {
 		c.AP.H = 100
 		c.AP.W = 100
 		c.AP.My = 88
-		c.AP.Mx = 88
+		c.AP.Mx = 30
+		c.strings = displayString(5, 20, nil)
 		c.history = append(c.history, []historyRecord{{"", 5}, {"daf", 0}}...)
 		c.handleMouse()
 	})
