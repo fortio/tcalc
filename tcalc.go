@@ -128,7 +128,7 @@ func (c *config) recordFromYValue(y int) int {
 	return -1
 }
 
-// returns if there was input and if we should quit
+// handleInput returns if there was input and if we should quit.
 func (c *config) handleInput() (bool, bool) {
 	switch len(c.AP.Data) {
 	case 0:
