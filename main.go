@@ -114,7 +114,7 @@ func (c *config) Update() {
 	for i := range 27 {
 		c.AP.WriteAtStr(i, c.AP.H, ansipixels.Horizontal)
 	}
-	c.AP.WriteAtStr(0, c.AP.H-2, strings.ReplaceAll(c.input, "_ans_", tcolor.Italic+GREEN+"_ans_"+tcolor.Reset))
+	c.AP.WriteAtStr(0, c.AP.H-2, strings.ReplaceAll(c.input, "ans", tcolor.Italic+GREEN+"ans"+tcolor.Reset))
 	c.DrawHistory()
 	if c.strings[0] == "" {
 		c.AP.WriteAtStr(0, c.AP.H-14, c.notification)
