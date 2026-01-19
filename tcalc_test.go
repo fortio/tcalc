@@ -108,16 +108,18 @@ func TestConfigHandleMouseInput(t *testing.T) {
 	}
 	t.Run("test clicks", func(_ *testing.T) {
 		c := configure(ap)
-		c.AP.Mouse = true
-		c.AP.Mrelease = true
-		c.AP.Mbuttons = 0
-		c.AP.H = 100
-		c.AP.W = 100
-		c.AP.My = 88
-		c.AP.Mx = 30
-		c.strings = displayString(5, 20, nil)
-		c.history = append(c.history, []historyRecord{{"", 5}, {"daf", 0}}...)
-		c.handleMouse()
+		for y := 88; y < 94; y++ {
+			c.AP.Mouse = true
+			c.AP.Mrelease = true
+			c.AP.Mbuttons = 0
+			c.AP.H = 100
+			c.AP.W = 100
+			c.AP.My = y
+			c.AP.Mx = 30
+			c.strings = displayString(5, 20, nil)
+			c.history = append(c.history, []historyRecord{{"", 5}, {"daf", 0}}...)
+			c.handleMouse()
+		}
 	})
 }
 
