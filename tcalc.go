@@ -61,7 +61,7 @@ func (c *config) determineBitFromXY(x, y int) int {
 	return -1
 }
 
-func (c *config) handleMouse() bool {
+func (c *config) handleMouse() {
 	c.AP.MoveCursor(c.index+1, c.AP.H-2)
 	switch {
 	case c.AP.MouseWheelUp():
@@ -74,10 +74,10 @@ func (c *config) handleMouse() bool {
 			bit := c.determineBitFromXY(x, c.AP.H-2-y)
 			c.clicked = true
 			c.state.Ans = (c.state.Ans) ^ (1 << bit)
-			return true
+			return
 		}
 		if c.AP.W <= 76 {
-			return true
+			return
 		}
 		if x <= c.AP.W/2 {
 			switch y {
@@ -100,7 +100,7 @@ func (c *config) handleMouse() bool {
 				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.state.Ans))
 				c.notification = GREEN + "Binary value copied to clipboard" + tcolor.Reset
 			}
-			return true
+			return
 		}
 		// we know x > midline
 		index := c.recordFromYValue(y)
@@ -109,16 +109,15 @@ func (c *config) handleMouse() bool {
 			c.input = c.history[c.curRecord].evaluated
 			c.index = len(c.input)
 		}
-		return true
+		return
 	case c.AP.W > 76 && c.AP.RightClick() && c.AP.MouseRelease() && c.AP.Mx > c.AP.W/2:
 		index := c.recordFromYValue(c.AP.My)
 		if index != -1 {
 			c.AP.CopyToClipboard(strconv.Itoa(int(c.history[index].finalValue)))
 			c.notification = GREEN + "History copied to clipboard" + tcolor.Reset
 		}
-		return true
+		return
 	}
-	return false
 }
 
 func (c *config) recordFromYValue(y int) int {
@@ -131,10 +130,9 @@ func (c *config) recordFromYValue(y int) int {
 
 // returns if there was input and if we should quit
 func (c *config) handleInput() (bool, bool) {
-	clicked := c.handleMouse()
 	switch len(c.AP.Data) {
 	case 0:
-		return clicked, false
+		return false, false
 	case 1:
 		switch c.AP.Data[0] {
 		case '\x03', '\x04':

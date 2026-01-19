@@ -41,7 +41,6 @@ func Main() int {
 	}
 	ap := ansipixels.NewAnsiPixels(*fpsFlag)
 	c := configure(ap)
-	c.AP.AutoSync = false
 	ap.TrueColor = *fTrueColor
 	if err := ap.Open(); err != nil {
 		return 1 // error already logged
@@ -53,11 +52,16 @@ func Main() int {
 		c.AP.ClearScreen()
 	}()
 	c.AP.MouseClickOn()
+	c.AP.OnMouse = func() {
+		c.handleMouse()
+		c.Update()
+	}
 	ap.SyncBackgroundColor()
 	ap.OnResize = func() error {
 		c.Update()
 		return nil
 	}
+	c.AP.AutoSync = false
 	_ = ap.OnResize() // initial draw.
 	err := ap.FPSTicks(func() bool {
 		userInput, quit := c.Tick()
