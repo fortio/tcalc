@@ -16,10 +16,10 @@ func TestDisplayStrings(t *testing.T) {
 		t.Fail()
 	}
 	uintString := uintDisplayString(-64)
-	if uintString != "Unsigned: 18446744073709551552" {
+	if uintString != "Unsigned : 18446744073709551552" {
 		t.Fail()
 	}
-	if unicodeDisplayString(int64('a')) != "Unicode: a" {
+	if unicodeDisplayString(int64('a')) != "Unicode  : a" {
 		t.Fail()
 	}
 	strs := displayString(64, 0, errors.New("random error"))
@@ -30,7 +30,7 @@ func TestDisplayStrings(t *testing.T) {
 		t.Fail()
 	}
 	octal := octalDisplayString(-64)
-	if octal != "Octal: 0o1777777777777777777700" {
+	if octal != "Octal    : 0o1777777777777777777700" {
 		fmt.Println(octal)
 		t.Fail()
 	}
