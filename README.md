@@ -9,7 +9,7 @@
 tcalc is a bitwise calculator that is run from the terminal. It supports basic variable assignments, and most arithmetic and bitwise operations.
 
 
-[Screenshot:](./screenshot.png)
+[Screenshot:](screenshot.png?raw=true)
 
 ## Install
 You can get the binary from [releases](https://github.com/fortio/tcalc/releases)
