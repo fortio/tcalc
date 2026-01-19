@@ -71,8 +71,8 @@ func TestConfigHandleInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := configure(tt.ap)
 			c.AP.Data = tt.data
-			got := c.handleInput()
-			if tt.want != got {
+			got, quit := c.handleInput()
+			if tt.want != got || quit {
 				t.Errorf("handleInput() = %v, want %v", got, tt.want)
 			}
 		})
@@ -96,8 +96,8 @@ func TestConfigHandleMouseInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := configure(tt.ap)
 			c.AP.Data = tt.data
-			got := c.handleInput()
-			if tt.want != got {
+			got, quit := c.handleInput()
+			if tt.want != got || quit {
 				t.Errorf("handleInput() = %v, want %v", got, tt.want)
 			}
 		})

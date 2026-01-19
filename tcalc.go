@@ -60,7 +60,7 @@ func (c *config) determineBitFromXY(x, y int) int {
 	return -1
 }
 
-func (c *config) handleMouse() {
+func (c *config) handleMouse() bool {
 	c.AP.MoveCursor(c.index+1, c.AP.H-2)
 	switch {
 	case c.AP.MouseWheelUp():
@@ -73,10 +73,10 @@ func (c *config) handleMouse() {
 			bit := c.determineBitFromXY(x, c.AP.H-2-y)
 			c.clicked = true
 			c.state.Ans = (c.state.Ans) ^ (1 << bit)
-			return
+			return true
 		}
 		if c.AP.W <= 76 {
-			return
+			return true
 		}
 		if x <= c.AP.W/2 {
 			switch y {
@@ -99,7 +99,7 @@ func (c *config) handleMouse() {
 				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.state.Ans))
 				c.notification = GREEN + "Binary value copied to clipboard" + tcolor.Reset
 			}
-			return
+			return true
 		}
 		// we know x > midline
 		index := c.recordFromYValue(y)
@@ -108,13 +108,16 @@ func (c *config) handleMouse() {
 			c.input = c.history[c.curRecord].evaluated
 			c.index = len(c.input)
 		}
+		return true
 	case c.AP.W > 76 && c.AP.RightClick() && c.AP.MouseRelease() && c.AP.Mx > c.AP.W/2:
 		index := c.recordFromYValue(c.AP.My)
 		if index != -1 {
 			c.AP.CopyToClipboard(strconv.Itoa(int(c.history[index].finalValue)))
 			c.notification = GREEN + "History copied to clipboard" + tcolor.Reset
 		}
+		return true
 	}
+	return false
 }
 
 func (c *config) recordFromYValue(y int) int {
@@ -125,15 +128,16 @@ func (c *config) recordFromYValue(y int) int {
 	return -1
 }
 
-func (c *config) handleInput() bool {
-	c.handleMouse()
+// returns if there was input and if we should quit
+func (c *config) handleInput() (bool, bool) {
+	clicked := c.handleMouse()
 	switch len(c.AP.Data) {
 	case 0:
-		return true
+		return clicked, false
 	case 1:
 		switch c.AP.Data[0] {
-		case '\x03':
-			return false
+		case '\x03', '\x04':
+			return true, true
 		case '\x7f':
 			before, after := c.input[:max(0, c.index-1)], c.input[c.index:]
 			c.input = before + after
@@ -171,7 +175,7 @@ func (c *config) handleInput() bool {
 			c.index += len(string(c.AP.Data))
 		}
 	}
-	return true
+	return true, false
 }
 
 func (c *config) handleDown() {

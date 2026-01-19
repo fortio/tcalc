@@ -41,7 +41,7 @@ func Main() int {
 	}
 	ap := ansipixels.NewAnsiPixels(*fpsFlag)
 	c := configure(ap)
-
+	c.AP.AutoSync = false
 	ap.TrueColor = *fTrueColor
 	if err := ap.Open(); err != nil {
 		return 1 // error already logged
@@ -55,17 +55,18 @@ func Main() int {
 	c.AP.MouseClickOn()
 	ap.SyncBackgroundColor()
 	ap.OnResize = func() error {
-		ap.StartSyncMode()
 		c.Update()
-		ap.EndSyncMode()
 		return nil
 	}
 	_ = ap.OnResize() // initial draw.
 	err := ap.FPSTicks(func() bool {
-		if !c.Tick() {
+		userInput, quit := c.Tick()
+		if quit {
 			return false
 		}
-		c.Update()
+		if userInput {
+			c.Update()
+		}
 		return true
 	})
 	if *fMemprofile != "" {
@@ -88,6 +89,8 @@ func Main() int {
 }
 
 func (c *config) Update() {
+	c.AP.StartSyncMode()
+	defer c.AP.EndSyncMode()
 	diff := len(c.history) - (c.AP.H / 2) + 1
 	if diff > 0 {
 		c.history = c.history[diff:]
@@ -121,6 +124,6 @@ func (c *config) Update() {
 	c.AP.MoveCursor(c.index, c.AP.H-2)
 }
 
-func (c *config) Tick() bool {
+func (c *config) Tick() (bool, bool) {
 	return c.handleInput()
 }
