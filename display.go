@@ -9,11 +9,12 @@ import (
 )
 
 const (
-	decimalString string = "Decimal: "
-	hexString     string = "Hex: "
-	octalString   string = "Octal: "
-	binaryString  string = "Binary: \n"
-	unicodeString string = "Unicode: "
+	decimalString  string = "Decimal  : "
+	hexString      string = "Hex      : "
+	octalString    string = "Octal    : "
+	binaryString   string = "Binary: \n"
+	unicodeString  string = "Unicode  : "
+	unsignedString        = "Unsigned : "
 )
 
 var (
@@ -77,7 +78,7 @@ func decimalDisplayString(num int64) string {
 
 func uintDisplayString(num int64) string {
 	//nolint:gosec // we just want to display the unsigned representation of our number
-	return "Unsigned: " + strconv.FormatUint((uint64(num)), 10)
+	return unsignedString + strconv.FormatUint((uint64(num)), 10)
 }
 
 func hexDisplayString(num int64) string {
@@ -110,14 +111,14 @@ func displayString(num, prev int64, err error) []string {
 func unicodeDisplayString(num int64) string {
 	switch num {
 	case 12:
-		return "Unicode: "
+		return "Unicode  : "
 	case 7:
-		return "Unicode: "
+		return "Unicode  : "
 	case 10:
-		return "Unicode: \\n"
+		return "Unicode  : \\n"
 	case 11:
-		return "Unicode: \\r"
+		return "Unicode  : \\r"
 	default:
-		return "Unicode: " + string(rune(num))
+		return "Unicode  : " + string(rune(num))
 	}
 }
