@@ -8,7 +8,7 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[SUM-43]
+	_ = x[ADD-43]
 	_ = x[SUB-45]
 	_ = x[PROD-42]
 	_ = x[DIV-47]
@@ -24,7 +24,7 @@ func _() {
 
 const (
 	_Operator_name_0 = "MODAND"
-	_Operator_name_1 = "LPARENRPARENPRODSUM"
+	_Operator_name_1 = "LPARENRPARENPRODADD"
 	_Operator_name_2 = "SUB"
 	_Operator_name_3 = "DIV"
 	_Operator_name_4 = "ASSIGN"

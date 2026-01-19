@@ -100,7 +100,7 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 	}
 	num, err := strconv.ParseInt(*curNode.value, 0, 64)
 	if err != nil {
-		if *curNode.value == "_ans_" {
+		if *curNode.value == "ans" {
 			return s.Ans, nil
 		}
 		return s.Variables[*curNode.value], nil
