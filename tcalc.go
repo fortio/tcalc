@@ -97,7 +97,7 @@ func (c *config) handleMouse() {
 				c.AP.CopyToClipboard(strings.Trim(c.strings[5][len(octalString):], " "))
 				c.notification = GREEN + "Octal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 7:
-				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", uint64(c.state.Ans)))
+				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", uint64(c.state.Ans))) //nolint:gosec // we want binary representation
 				c.notification = GREEN + "Binary value copied to clipboard" + tcolor.Reset
 			default:
 				c.notification = ""
