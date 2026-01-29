@@ -63,6 +63,7 @@ func (c *config) determineBitFromXY(x, y int) int {
 
 func (c *config) handleMouse() {
 	c.AP.MoveCursor(c.index+1, c.AP.H-2)
+	c.notification = ""
 	switch {
 	case c.AP.MouseWheelUp():
 		c.handleUp()
@@ -97,7 +98,7 @@ func (c *config) handleMouse() {
 				c.AP.CopyToClipboard(strings.Trim(c.strings[5][len(octalString):], " "))
 				c.notification = GREEN + "Octal value copied to clipboard" + tcolor.Reset
 			case c.AP.H - 7:
-				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", c.state.Ans))
+				c.AP.CopyToClipboard(fmt.Sprintf("0b%b", uint64(c.state.Ans))) //nolint:gosec // we want binary representation
 				c.notification = GREEN + "Binary value copied to clipboard" + tcolor.Reset
 			}
 			return
