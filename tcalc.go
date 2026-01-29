@@ -112,7 +112,6 @@ func (c *config) handleMouse() {
 		}
 		return
 	case c.AP.W > 76 && c.AP.RightClick() && c.AP.MouseRelease() && c.AP.Mx > c.AP.W/2:
-		c.notification = ""
 		index := c.recordFromYValue(c.AP.My)
 		if index != -1 {
 			c.AP.CopyToClipboard(strconv.Itoa(int(c.history[index].finalValue)))
