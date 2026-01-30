@@ -105,5 +105,5 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 		}
 		return s.Variables[*curNode.value], nil
 	}
-	return int64(num), nil
+	return int64(num), nil //nolint:gosec // must cast so that we don't discard sign bit
 }
