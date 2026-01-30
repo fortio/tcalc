@@ -98,12 +98,12 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 			return -1, errors.New("bad double rune operator")
 		}
 	}
-	num, err := strconv.ParseInt(*curNode.value, 0, 64)
+	num, err := strconv.ParseUint(*curNode.value, 0, 64)
 	if err != nil {
 		if *curNode.value == "ans" {
 			return s.Ans, nil
 		}
 		return s.Variables[*curNode.value], nil
 	}
-	return num, nil
+	return int64(num), nil
 }
