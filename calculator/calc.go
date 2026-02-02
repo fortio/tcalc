@@ -27,16 +27,17 @@ type (
 )
 
 const (
-	ADD  Operator = '+'
-	SUB  Operator = '-'
-	PROD Operator = '*'
-	DIV  Operator = '/'
-	XOR  Operator = '^'
-	OR   Operator = '|'
-	NOT  Operator = '~'
-	AND  Operator = '&'
-	MOD  Operator = '%'
-
+	ADD    Operator = '+'
+	SUB    Operator = '-'
+	PROD   Operator = '*'
+	DIV    Operator = '/'
+	XOR    Operator = '^'
+	OR     Operator = '|'
+	NOT    Operator = '~'
+	AND    Operator = '&'
+	MOD    Operator = '%'
+	PEXT   Operator = ']'
+	PDEP   Operator = '['
 	ASSIGN Operator = '='
 
 	LPAREN Operator = '('
@@ -49,7 +50,7 @@ const (
 )
 
 var Length1operatorsInfix = []Operator{
-	ADD, SUB, PROD, DIV, XOR, AND, MOD, ASSIGN, OR,
+	ADD, SUB, PROD, DIV, XOR, AND, MOD, ASSIGN, OR, PEXT, PDEP,
 }
 
 var Length1operatorsPrefix = []Operator{

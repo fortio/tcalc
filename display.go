@@ -102,6 +102,7 @@ func displayString(num, prev int64, err error) []string {
 	},
 		binaryDisplayStrings(num, prev)...,
 	)
+	display = append(display, bitCountStrings(num))
 	if err != nil {
 		display[0] = RED + "Last input was invalid" + tcolor.Reset
 	}
@@ -121,4 +122,9 @@ func unicodeDisplayString(num int64) string {
 	default:
 		return "Unicode  : " + string(rune(num))
 	}
+}
+
+func bitCountStrings(num int64) string {
+	l0, t0, oneC := bitCounts(uint(num)) //nolint:gosec // we just want to display the unsigned representation of our number
+	return fmt.Sprintf("Leading 0s: %d, Trailing 0s: %d, 1s: %d", l0, t0, oneC)
 }

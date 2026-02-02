@@ -17,6 +17,8 @@ func _() {
 	_ = x[NOT-126]
 	_ = x[AND-38]
 	_ = x[MOD-37]
+	_ = x[PEXT-93]
+	_ = x[PDEP-91]
 	_ = x[ASSIGN-61]
 	_ = x[LPAREN-40]
 	_ = x[RPAREN-41]
@@ -28,14 +30,16 @@ const (
 	_Operator_name_2 = "SUB"
 	_Operator_name_3 = "DIV"
 	_Operator_name_4 = "ASSIGN"
-	_Operator_name_5 = "XOR"
-	_Operator_name_6 = "OR"
-	_Operator_name_7 = "NOT"
+	_Operator_name_5 = "PDEP"
+	_Operator_name_6 = "PEXTXOR"
+	_Operator_name_7 = "OR"
+	_Operator_name_8 = "NOT"
 )
 
 var (
 	_Operator_index_0 = [...]uint8{0, 3, 6}
 	_Operator_index_1 = [...]uint8{0, 6, 12, 16, 19}
+	_Operator_index_6 = [...]uint8{0, 4, 7}
 )
 
 func (i Operator) String() string {
@@ -52,12 +56,15 @@ func (i Operator) String() string {
 		return _Operator_name_3
 	case i == 61:
 		return _Operator_name_4
-	case i == 94:
+	case i == 91:
 		return _Operator_name_5
+	case 93 <= i && i <= 94:
+		i -= 93
+		return _Operator_name_6[_Operator_index_6[i]:_Operator_index_6[i+1]]
 	case i == 124:
-		return _Operator_name_6
-	case i == 126:
 		return _Operator_name_7
+	case i == 126:
+		return _Operator_name_8
 	default:
 		return "Operator(" + strconv.FormatInt(int64(i), 10) + ")"
 	}

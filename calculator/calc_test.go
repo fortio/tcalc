@@ -25,6 +25,8 @@ func TestExec(t *testing.T) {
 		{"'a'^30", 127, false},
 		{"(-1)", -1, false},
 		{"0b1000000000000000000000000000000000000000000000000000000000000000", -9223372036854775808, false},
+		{"487]15", 7, false},    // pext
+		{"15[4897", 801, false}, // pdep
 	}
 	for _, tc := range testCases {
 		s := NewState()
