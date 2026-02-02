@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/bits"
 	"slices"
 	"strconv"
 	"strings"
@@ -38,7 +39,7 @@ var instructions = []string{
 	"Arithmetic operations:",
 	" + - * / % ** (** for exponents)",
 	"Bitwise operations:",
-	" & | ^ ~ << >>",
+	" & | ^ ~ << >> ] (pext) [ (pdep)",
 	"Assign to variables with =.",
 	"Click on individual bits to flip them.",
 	"Up and down arrows to navigate history.",
@@ -283,4 +284,12 @@ func (c *config) DrawHistory() {
 			c.AP.WriteAtStr(c.AP.W-lengthToUse, c.AP.H-((len(c.history)-i)*2), tcolor.Reset+line)
 		}
 	}
+}
+
+// bitCounts returns the leading and trailing number of 0s in num, and the total number of 1s in num.
+func bitCounts(num uint) (int, int, int) {
+	l0 := bits.LeadingZeros(num)
+	t0 := bits.TrailingZeros(num)
+	oneC := bits.OnesCount(num)
+	return l0, t0, oneC
 }

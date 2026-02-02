@@ -61,6 +61,10 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 			return l | r, nil
 		case "%":
 			return l % r, nil
+		case "]":
+			return int64(pext(uint64(l), uint64(r))), nil //nolint:gosec // we just want to display the unsigned representation of our number
+		case "[":
+			return int64(pdep(uint64(l), uint64(r))), nil //nolint:gosec // we just want to display the unsigned representation of our number
 		default:
 			return -1, errors.New("invalid operator")
 		}
@@ -106,4 +110,32 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 		return s.Variables[*curNode.value], nil
 	}
 	return int64(num), nil //nolint:gosec // must cast so that we don't discard sign bit
+}
+
+func pdep(num uint64, mask uint64) uint64 {
+	var result uint64
+	numIndex := 0
+	for i := range 64 {
+		if (mask & (1 << i)) != 0 {
+			if (num & (1 << numIndex)) != 0 {
+				result |= (1 << i)
+			}
+			numIndex++
+		}
+	}
+	return result
+}
+
+func pext(num uint64, mask uint64) uint64 {
+	var result uint64
+	numIndex := 0
+	for i := range 64 {
+		if (mask & (1 << i)) != 0 {
+			if (num & (1 << i)) != 0 {
+				result |= (1 << numIndex)
+			}
+			numIndex++
+		}
+	}
+	return result
 }
