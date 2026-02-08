@@ -24,14 +24,14 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 		r, _ := utf8.DecodeRuneInString((*curNode.value)[1 : len(*curNode.value)-1])
 		return int64(r), nil
 	}
-	if *curNode.value == "-" && (curNode.left == nil || curNode.left.value == nil) {
+	if *curNode.value == "-" && (curNode.left == nil || curNode.left.value == nil) && curNode.right != nil {
 		num, err := s.Eval(*curNode.right)
 		if err != nil {
 			return -1, err
 		}
 		return -1 * num, nil
 	}
-	if slices.Contains(Length1operatorsInfix, Operator((*curNode.value)[0])) {
+	if curNode.left != nil && slices.Contains(Length1operatorsInfix, Operator((*curNode.value)[0])) {
 		l, err := s.Eval(*curNode.left)
 		if err != nil {
 			return 0, err
