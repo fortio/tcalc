@@ -19,7 +19,7 @@ func (s *State) parse(tokens []string, index int, cur *CalcNode) *CalcNode {
 		return cur
 	}
 	token := tokens[index]
-	newNode := CalcNode{value: &token}
+	newNode := CalcNode{value: token}
 	if slices.Contains(Length1operatorsInfix, Operator(token[0])) && token[0] != '=' {
 		newNode.left = cur
 		return s.parse(tokens, index+1, &newNode)
@@ -29,7 +29,7 @@ func (s *State) parse(tokens []string, index int, cur *CalcNode) *CalcNode {
 		if index == 0 || index == len(tokens)-1 {
 			return nil
 		}
-		name := *cur.value
+		name := cur.value
 		newNode = *s.parse(tokens[index+1:], 0, nil)
 		return &CalcNode{assignment: &assignment{name: name, right: newNode}}
 

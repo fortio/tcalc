@@ -3,7 +3,7 @@ package calculator
 type CalcNode struct {
 	left       *CalcNode
 	right      *CalcNode
-	value      *string
+	value      string
 	assignment *assignment
 }
 
@@ -20,28 +20,27 @@ func NewState() *State {
 	}
 }
 
-//go:generate stringer -type=Operator
 type (
-	Operator           rune
+	Operator           string
 	DoubleRuneOperator string
 )
 
 const (
-	ADD    Operator = '+'
-	SUB    Operator = '-'
-	PROD   Operator = '*'
-	DIV    Operator = '/'
-	XOR    Operator = '^'
-	OR     Operator = '|'
-	NOT    Operator = '~'
-	AND    Operator = '&'
-	MOD    Operator = '%'
-	PEXT   Operator = ']'
-	PDEP   Operator = '['
-	ASSIGN Operator = '='
+	ADD    Operator = "+"
+	SUB    Operator = "-"
+	PROD   Operator = "*"
+	DIV    Operator = "/"
+	XOR    Operator = "^"
+	OR     Operator = "|"
+	NOT    Operator = "~"
+	AND    Operator = "&"
+	MOD    Operator = "%"
+	PEXT   Operator = "]"
+	PDEP   Operator = "["
+	ASSIGN Operator = "="
 
-	LPAREN Operator = '('
-	RPAREN Operator = ')'
+	LPAREN Operator = "("
+	RPAREN Operator = ")"
 	// two rune operators.
 
 	LEFTSHIFT  DoubleRuneOperator = "<<"
@@ -58,7 +57,7 @@ var Length1operatorsPrefix = []Operator{
 }
 
 var Length2operators = []DoubleRuneOperator{
-	LEFTSHIFT, RIGHTSHIFT,
+	LEFTSHIFT, RIGHTSHIFT, EXP,
 }
 
 func (s *State) Exec(input string) error {
