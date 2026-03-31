@@ -31,7 +31,7 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 		}
 		return -1 * num, nil
 	}
-	if curNode.left != nil && len(curNode.value) == 1 && slices.Contains(Length1operatorsInfix, Operator((curNode.value)[0])) {
+	if curNode.left != nil && len(curNode.value) == 1 && slices.Contains(Length1operatorsInfix, Operator((curNode.value))) {
 		l, err := s.Eval(*curNode.left)
 		if err != nil {
 			return 0, err

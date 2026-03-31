@@ -1,6 +1,6 @@
 module fortio.org/tcalc
 
-go 1.24.0
+go 1.25.0
 
 require (
 	fortio.org/cli v1.12.3
@@ -15,7 +15,7 @@ require (
 	github.com/jbuchbinder/gopnm v0.0.0-20251119211316-bb594e0d2e34 // indirect
 	github.com/kortschak/goroutine v1.1.3 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/crypto/x509roots/fallback v0.0.0-20260113154411-7d0074ccc6f1 // indirect
+	golang.org/x/crypto/x509roots/fallback v0.0.0-20250406160420-959f8f3db0fb // indirect
 	golang.org/x/image v0.36.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
 	golang.org/x/term v0.40.0 // indirect

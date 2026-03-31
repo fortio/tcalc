@@ -20,28 +20,27 @@ func NewState() *State {
 	}
 }
 
-//go:generate stringer -type=Operator
 type (
-	Operator           rune
+	Operator           string
 	DoubleRuneOperator string
 )
 
 const (
-	ADD    Operator = '+'
-	SUB    Operator = '-'
-	PROD   Operator = '*'
-	DIV    Operator = '/'
-	XOR    Operator = '^'
-	OR     Operator = '|'
-	NOT    Operator = '~'
-	AND    Operator = '&'
-	MOD    Operator = '%'
-	PEXT   Operator = ']'
-	PDEP   Operator = '['
-	ASSIGN Operator = '='
+	ADD    Operator = "+"
+	SUB    Operator = "-"
+	PROD   Operator = "*"
+	DIV    Operator = "/"
+	XOR    Operator = "^"
+	OR     Operator = "|"
+	NOT    Operator = "~"
+	AND    Operator = "&"
+	MOD    Operator = "%"
+	PEXT   Operator = "]"
+	PDEP   Operator = "["
+	ASSIGN Operator = "="
 
-	LPAREN Operator = '('
-	RPAREN Operator = ')'
+	LPAREN Operator = "("
+	RPAREN Operator = ")"
 	// two rune operators.
 
 	LEFTSHIFT  DoubleRuneOperator = "<<"
