@@ -10,6 +10,8 @@ func TestExec(t *testing.T) {
 		expected   int64
 		shouldFail bool
 	}{
+		{"2**3", 8, false},
+		{"3**4", 81, false},
 		{"1 + 3 + 2", 6, false},
 		{"1 * (3 + 2)*(5+6)", 55, false},
 		{"(2 * (3 + 2) - 1)+ 1 / 1", 10, false},
