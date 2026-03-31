@@ -143,6 +143,14 @@ func TestAssign(t *testing.T) {
 	}
 }
 
+func TestExp(t *testing.T) {
+	s := calculator.NewState()
+	err := s.Exec("2**3")
+	if err != nil || s.Ans != 8 {
+		t.Fail()
+	}
+}
+
 func TestDrawHistory(t *testing.T) {
 	s := calculator.NewState()
 	err1 := s.Exec("1+1")

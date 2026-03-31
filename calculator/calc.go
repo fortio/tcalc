@@ -58,7 +58,7 @@ var Length1operatorsPrefix = []Operator{
 }
 
 var Length2operators = []DoubleRuneOperator{
-	LEFTSHIFT, RIGHTSHIFT,
+	LEFTSHIFT, RIGHTSHIFT, EXP,
 }
 
 func (s *State) Exec(input string) error {
