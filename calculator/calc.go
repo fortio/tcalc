@@ -3,7 +3,7 @@ package calculator
 type CalcNode struct {
 	left       *CalcNode
 	right      *CalcNode
-	value      *string
+	value      string
 	assignment *assignment
 }
 
