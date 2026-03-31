@@ -42,7 +42,7 @@ func binaryDisplayStrings(num, prev int64) []string {
 		prevValue := (int(((1 << i) & prev) >> i))
 		prevValue = max(prevValue, -prevValue)
 		valueString := bitString((value), (prevValue))
-		if rows[j][k] == nil { //nolint:gosec // we are doing some math to ensure we stay in bounds
+		if rows[j][k] == nil {
 			rows[j][k] = make([]string, 4)
 		}
 
@@ -120,7 +120,7 @@ func unicodeDisplayString(num int64) string {
 	case 11:
 		return "Unicode  : \\r"
 	default:
-		return "Unicode  : " + string(rune(num))
+		return "Unicode  : " + string(rune(num)) //nolint:gosec // we just want to display the unicode character for our number
 	}
 }
 
