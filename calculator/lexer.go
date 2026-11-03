@@ -70,7 +70,7 @@ func (s *State) Tokenize(input string) ([]string, error) {
 			}
 		}
 	}
-	tokens = tokens[:len(tokens):len(tokens)]
+	tokens = slices.Clip(tokens)
 	if cur != "" {
 		tokens = append(tokens, cur)
 	}
