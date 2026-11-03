@@ -75,7 +75,7 @@ func (c *config) handleMouse() {
 		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
 			bit := c.determineBitFromXY(x, c.AP.H-2-y)
 			c.clicked = true
-			c.state.Ans = c.state.Ans ^ (1 << bit)
+			c.state.Ans ^= (1 << bit)
 			return
 		}
 		if c.AP.W <= 76 {
