@@ -37,11 +37,11 @@ func binaryDisplayStrings(num, prev int64) []string {
 	var rows [4][4][]string
 	var j, k, w int
 	for i := 63; i > -1; i-- {
-		value := (int(((1 << i) & num) >> i))
+		value := int(((1 << i) & num) >> i)
 		value = max(value, -value)
-		prevValue := (int(((1 << i) & prev) >> i))
+		prevValue := int(((1 << i) & prev) >> i)
 		prevValue = max(prevValue, -prevValue)
-		valueString := bitString((value), (prevValue))
+		valueString := bitString(value, prevValue)
 		if rows[j][k] == nil {
 			rows[j][k] = make([]string, 4)
 		}
@@ -78,7 +78,7 @@ func decimalDisplayString(num int64) string {
 
 func uintDisplayString(num int64) string {
 	//nolint:gosec // we just want to display the unsigned representation of our number
-	return unsignedString + strconv.FormatUint((uint64(num)), 10)
+	return unsignedString + strconv.FormatUint(uint64(num), 10)
 }
 
 func hexDisplayString(num int64) string {
