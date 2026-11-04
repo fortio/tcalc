@@ -54,7 +54,7 @@ func (s *State) Tokenize(input string) ([]string, error) {
 			if len(cur) > 0 && inQuote == 0 {
 				tokens = append(tokens, cur)
 				cur = ""
-			} else {
+			} else if inQuote == 1 {
 				cur += string(char)
 			}
 		case '>', '<', '*':
