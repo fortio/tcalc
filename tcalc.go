@@ -75,7 +75,7 @@ func (c *config) handleMouse() {
 		if slices.Contains(validClickXs, x) && y < c.AP.H-2 && y >= c.AP.H-6 {
 			bit := c.determineBitFromXY(x, c.AP.H-2-y)
 			c.clicked = true
-			c.state.Ans = (c.state.Ans) ^ (1 << bit)
+			c.state.Ans ^= (1 << bit)
 			return
 		}
 		if c.AP.W <= 76 {
@@ -259,7 +259,7 @@ func (c *config) DrawHistory() {
 	if c.AP.W > 76 {
 		for i := range 27 {
 			c.AP.WriteAtStr(c.AP.W-i, c.AP.H, ansipixels.Horizontal)
-			c.AP.WriteAtStr(c.AP.W-i, c.AP.H-((len(c.history))*2)-1, ansipixels.Horizontal)
+			c.AP.WriteAtStr(c.AP.W-i, c.AP.H-(len(c.history)*2)-1, ansipixels.Horizontal)
 		}
 		for i := range c.AP.H {
 			c.AP.WriteAtStr(c.AP.W/2, i, ansipixels.Vertical)

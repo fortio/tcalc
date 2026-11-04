@@ -20,8 +20,8 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 	if curNode.value == "" {
 		return -1, errors.New("bad value")
 	}
-	if (curNode.value)[0] == '\'' && (curNode.value)[len(curNode.value)-1] == '\'' {
-		r, _ := utf8.DecodeRuneInString((curNode.value)[1 : len(curNode.value)-1])
+	if curNode.value[0] == '\'' && curNode.value[len(curNode.value)-1] == '\'' {
+		r, _ := utf8.DecodeRuneInString(curNode.value[1 : len(curNode.value)-1])
 		return int64(r), nil
 	}
 	if curNode.value == "-" && (curNode.left == nil || curNode.left.value == "") && curNode.right != nil {
@@ -31,7 +31,7 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 		}
 		return -1 * num, nil
 	}
-	if curNode.left != nil && len(curNode.value) == 1 && slices.Contains(Length1operatorsInfix, Operator((curNode.value))) {
+	if curNode.left != nil && len(curNode.value) == 1 && slices.Contains(Length1operatorsInfix, Operator(curNode.value)) {
 		l, err := s.Eval(*curNode.left)
 		if err != nil {
 			return 0, err
@@ -69,7 +69,7 @@ func (s *State) Eval(curNode CalcNode) (int64, error) { //nolint:funlen,gocyclo 
 			return -1, errors.New("invalid operator")
 		}
 	}
-	if slices.Contains(Length1operatorsPrefix, Operator((curNode.value)[0])) {
+	if slices.Contains(Length1operatorsPrefix, Operator(curNode.value[0])) {
 		num, err := s.Eval(*curNode.right)
 		if err != nil {
 			return -1, err
