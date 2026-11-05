@@ -10,6 +10,9 @@ func (s *State) Tokenize(input string) ([]string, error) {
 	if strings.Count(input, "=") > 1 {
 		return nil, errors.New("invalid double assignment")
 	}
+	if strings.Count(input, "'")%2 != 0 {
+		return nil, errors.New("invalid quotation characters")
+	}
 	tokens := make([]string, 0, len(input))
 	cur := ""
 	inQuote := 0
@@ -48,9 +51,11 @@ func (s *State) Tokenize(input string) ([]string, error) {
 				return nil, errors.New("only single runes allowed in single quotes")
 			}
 		case ' ', '\r', '\n':
-			if len(cur) > 0 {
+			if len(cur) > 0 && inQuote == 0 {
 				tokens = append(tokens, cur)
 				cur = ""
+			} else if inQuote == 1 {
+				cur += string(char)
 			}
 		case '>', '<', '*':
 			if cur == string(char) {
